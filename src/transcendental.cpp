@@ -1,46 +1,41 @@
 #include "transcendental.h"
 
-#define NONZERO(a) abs(a)>DBL_MIN
 // ================================================================================================
-
+// 
 // ================================================================================================
-std::complex<double> G_q(std::complex<double> q, std::complex<double> z) 
+std::complex<double> G_q(std::complex<double> q, std::complex<double> z) noexcept 
 // This function returns G_q(z) for |q|<1.
 {
-	if (!(NONZERO(z)))
+	if (!nonzero(z))
 		return INFTY; // at z=0, G_q(z) has an essential singularity.
-	std::complex<double> one_minus_z = COMPLEX_ONE - z;
-	if (!(NONZERO(one_minus_z)))
+	std::complex<double> one_minus_z = 1.0 - z;
+	if (!nonzero(one_minus_z))
 		return INFTY; // at z=1, G_q(z) has a pole.
-	register std::complex<double> result = COMPLEX_ONE / one_minus_z; // = 1/(1-z)
-	register std::complex<double> factor;
-	// at first, n=1
+	register std::complex<double> result = 1.0 / one_minus_z; // = 1/(1-z)
+	// at first, we take the terms q^n / z, q^n * z with n=1,
 	register std::complex<double> q_to_n_times_z = q * z; 
 	register std::complex<double> q_to_n_over_z = q / z; // safe as z != 0
-	while (NONZERO(q_to_n_over_z)) // main loop runs until q_to_n_over_z is indistinguishable from 0.
+	while (!nonzero(q_to_n_over_z)) // main loop runs until q_to_n_over_z is indistinguishable from 0.
 	{
-		factor = (COMPLEX_ONE + q_to_n_over_z)
-				/
-			(COMPLEX_ONE - q_to_n_times_z);
-		result *= factor;
-		q_to_n_times_z *= q;
+		result *= (1.0 + q_to_n_over_z)
+				/               // Costly call to __divdc3 :-/
+			(1.0 - q_to_n_times_z);
 		q_to_n_over_z *= q;
+		q_to_n_times_z *= q;
 	}
 	return result;
 }
-
 // ================================================================================================
-std::complex<double> c(std::complex<double> q) // Returns c(q)
+std::complex<double> c(std::complex<double> q) noexcept
+// Returns c(q)
 {
-	std::complex<double> result = COMPLEX_ONE;
-	std::complex<double> factor = COMPLEX_ZERO;
+	std::complex<double> result = 1.0;
 	std::complex<double> q_to_n = q;
-	while (NONZERO(q_to_n))
+	while (nonzero(q_to_n))
 	{
-		factor = square(COMPLEX_ONE - q_to_n)
+		result *= square(1.0 - q_to_n)
 				/
-			(COMPLEX_ONE - square(q_to_n));
-		result *= factor;
+			(1.0 - square(q_to_n));
 		q_to_n *= q;
 	}
 	return result;
@@ -51,7 +46,7 @@ std::complex<double> kn_sum(std::complex<double>* array, int length)
 	// Adds up the complex numbers in the array 'array' of length 'length'
 	// using the Kahan–Neumaier running compensation algorithm.
 	if (length < 1)
-		return COMPLEX_ZERO;
+		return 0.0;
 	register double re_sum = array[0].real(); 
 	register double im_sum = array[0].imag(); // set sums to first element
 	register double re_compensation = 0.0;

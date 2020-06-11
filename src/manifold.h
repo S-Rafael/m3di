@@ -11,11 +11,11 @@
 // Main class representing the combinatorics of a triangulation.
 class mani_data
 {
-	bool valid_state, valid_precomp;
-	int N, k;
+	bool valid_state, valid_precomp; // state variables
+	int N, k; // Number of tetrahedra and cusps
 	double* angles; //initial angle structure
-	std::complex<double> cq_factor; 
-	int* LTD;
+	std::complex<double> cq_factor; // c(q)
+	int* LTD; // Leading-trailing matrix as C array
 	precomputed** precomputed_quads;
 	bool read_json(char* filepath);
 	public:
@@ -27,7 +27,7 @@ class mani_data
 	inline bool is_valid() {return valid_state;}
 	inline bool ready() {return (valid_state && valid_precomp);}
 	inline std::complex<double> get_integrand_value(unsigned int* yindices) {
-			std::complex<double> prod = COMPLEX_ONE; // we multiply tetrahedral weigths
+			std::complex<double> prod = 1.0; // we multiply tetrahedral weigths
 			for (int j = 0; j < N; j++) // weight of tetrahedron j:
 				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(yindices, 3*j  ))
 				      * precomputed_quads[3*j+1]->get(ltd_exponent(yindices, 3*j+1))

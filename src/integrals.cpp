@@ -35,7 +35,7 @@ void subslice(std::complex<double>* output, int level, unsigned int* indices, in
 	     // (in particular, all indices in 'indices' are set).
 		for (indices[level] = from; indices[level] < to; indices[level]++)
 			buffer[indices[level] - from] = M->get_integrand_value(indices);
-	// write to output pointer:
+	// write to output:
 	*output = D->step_length() * kn_sum(buffer, len);
 	delete [] buffer;
 }
@@ -127,7 +127,7 @@ int decide_thread_count(int N, int samples)
 	// There are N-1 nested integrals to compute, so we
 	// need to estimate (samples)^(N-1); we divide it by 10^thread_base
 	double s = std::pow(samples, N-1) * std::pow(10, -thread_base);
-	int optimal_threads = (int) std::ceil(s);
+	int optimal_threads = static_cast<int>(std::ceil(s));
 	if (optimal_threads > concurrency * overload)
 		optimal_threads = concurrency * overload;
 	return optimal_threads;
