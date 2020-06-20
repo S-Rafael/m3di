@@ -1,18 +1,17 @@
-all: m3di
+# Makefile for the m3di project.
 
+CPP_compiler := g++
 objects := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-binary = m3di
+binary := m3di
 libs = -lpthread -ljsoncpp
-CPPFLAGS = -std=c++11 -O3 -Wall -Wno-deprecated-declarations
+CPPFLAGS = -std=c++17 -O3 -Wall
 
-m3di: $(objects)
-	g++ $(compiler_flags) -o $(binary) $(libs) $(objects)
+# We use the implicit make rules
+${binary}: $(objects)
+	$(CPP_compiler) -o $(binary) $(libs) $(objects)
 
 clean:
-	rm *.o $(binary)
+	rm -f *.o $(binary)
 
-install:
-	@[[ -d "${HOME}/bin" ]] || mkdir "${HOME}/bin"
-	@cp -u $(binary) "${HOME}/bin/$(binary)"
-	@cp -u massgen "${HOME}/bin/massgen"
-	@echo "Installed to ${HOME}/bin"
+all: ${binary}
+
