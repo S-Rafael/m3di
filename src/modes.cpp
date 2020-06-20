@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2019-2020 Rafael M. Siejakowski
+ *   License information at the end of the file.
+ */
 #include "modes.h"
 
 //==========================================================================================
@@ -39,57 +43,6 @@ program_mode decide_mode(int argc, char** argv)
 		return MODE_HELP;
 	else
 		return MODE_USAGE;
-}
-//==========================================================================================
-void integrate_mode(int argc, char** argv)
-/*
-	This function implements the integration mode, which is the main mode of the program.
-*/
-{
-	// Parse hbar and sample count
-	double Rehbar = parse_double(argv[3]);
-	double Imhbar = parse_double(argv[4]);
-	int samples = parse_int(argv[5]);
-	if (samples < 1)
-	{
-		std::cerr << "Error: The number of samples must be a positive integer!" << std::endl;
-		return;
-	}
-	std::complex<double> hbar = std::complex<double>(Rehbar, Imhbar);
-	double a = exp(Rehbar); // a = |q|
-	if (a < DBL_MIN || a >= 1.0)
-	{
-		std::cerr << "Error: The value of q specified does not satisfy 0<|q|<1!" << std::endl;
-		return;
-	}
-	// Read in manifold info
-	mani_data M = mani_data(argv[2]); 
-	if (!M.is_valid())
-	{
-		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
-		             "manifold specification!" << std::endl;
-		return;
-	}
-	// compute the meromorphic 3D-index
-	std::complex<double> GK = GK_integral(&M, hbar, samples);
-	// Format the given hbar_value
-	std::ostringstream hbar_given;
-	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
-	// Create JSON representation of output
-	Json::Value output;
-	output["hbar_given"] = hbar_given.str();
-	output["samples"] = samples;
-	output["hbar_real_part"] = Rehbar;
-	output["hbar_imag_part"] = Imhbar;
-	output["int_real_part"] = GK.real();
-	output["int_imag_part"] = GK.imag();
-	// Output data
-	Json::StreamWriterBuilder builder;
-	builder["indentation"] = "\t";
-	builder.settings_["precision"] = 320;
-	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	writer->write(output, &std::cout);
-	std::cout << std::endl;
 }
 //==========================================================================================
 void display_usage()
@@ -142,3 +95,41 @@ void display_help()
 "                      computation.\n\n";
 }
 //==========================================================================================
+bool validate_q_and_samples(double Rehbar, double Imhbar, int samples)
+{
+	// Checks if the values have been specified correctly
+	// Returns true on valid data, false on invalid.
+	if (samples < 1)
+	{
+		std::cerr << "Error: The number of samples must be a positive integer!" << std::endl;
+		return false;
+	}
+	double a = exp(Rehbar); // a = |q|
+	if (a < DBL_MIN || a >= 1.0)
+	{
+		std::cerr << "Error: The value of q specified does not satisfy 0<|q|<1!" << std::endl;
+		return false;
+	}
+	return true;
+}
+//==========================================================================================
+/*
+ *
+ * Copyright (C) 2019-2020 Rafael M. Siejakowski
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License 
+ * version 2 as published by the Free Software Foundation; 
+ * later versions of the GNU General Public Licence do NOT apply.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 
+ * 02110-1301, USA.
+ *
+ */

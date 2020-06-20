@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2019-2020 Rafael M. Siejakowski
+ *   License information at the end of the file.
+ */
 #include "write.h"
 
 void write_mode(int argc, char** argv)
@@ -9,19 +13,10 @@ void write_mode(int argc, char** argv)
 	double Rehbar = parse_double(argv[3]);
 	double Imhbar = parse_double(argv[4]);
 	int samples = parse_int(argv[5]);
-	if (samples < 1)
-	{
-		std::cerr << "Error: The number of samples must be a positive integer!" << std::endl;
+	if (!validate_q_and_samples(Rehbar, Imhbar, samples))
 		return;
-	}
-	std::complex<double> hbar = std::complex<double>(Rehbar, Imhbar);
-	double a = exp(Rehbar); // a = |q|
-	if (a < DBL_MIN || a >= 1.0)
-	{
-		std::cerr << "Error: The value of q specified does not satisfy 0<|q|<1!" << std::endl;
-		return;
-	}
-	// Read in manifold info
+	std::complex<double> hbar = {Rehbar, Imhbar};
+	// Try to read in manifold info
 	mani_data M = mani_data(argv[2]); 
 	if (!M.is_valid())
 	{
@@ -29,6 +24,7 @@ void write_mode(int argc, char** argv)
 		             "manifold specification!" << std::endl;
 		return;
 	}
+	// M is OK, we launch precomputation
 	M.precompute(hbar, samples);
 	if (!M.ready())
 	{
@@ -49,29 +45,28 @@ void write_mode(int argc, char** argv)
 	// Output data
 	Json::StreamWriterBuilder builder;
 	builder["indentation"] = "\t";
-	builder.settings_["precision"] = 320;
+	builder.settings_["precision"] = 64;
 	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	writer->write(output, &std::cout);
+	writer->write(output, &std::cout); // TODO: allow output to file
 	std::cout << std::endl;
 }
 
 // ================================================================================================
 void store_integrand_values(Json::Value &target, mani_data &M, int samples)
 /*
-	This function fills target with values of the meromorphic
+	This function fills 'target' with values of the meromorphic
 	3D-index integrand on M at sample points.
 */
 {
 	std::complex<double> val;
-	int d =  M.num_tetrahedra() - 1;
-	double* pts = new double[d];
+	unsigned int d =  M.num_tetrahedra() - 1; // dimension of integration domain
 	double step = twopi/static_cast<double>(samples);
 	multi_iterator indices = multi_iterator(samples, d);
 	do
 	{
 		Json::Value pts_array;
 		val = M.get_integrand_value(indices.item());
-		for (int i=0; i<d; i++)
+		for (unsigned int i=0; i<d; i++)
 			pts_array.append(step * static_cast<double>(indices.item()[i]));
 		Json::Value point;
 		point["t"] = pts_array;
@@ -79,7 +74,6 @@ void store_integrand_values(Json::Value &target, mani_data &M, int samples)
 		point["imag"] = val.imag();
 		target["points"].append(point); 
 	} while (indices.advance());
-	delete [] pts;
 }
 // ================================================================================================
 multi_iterator::multi_iterator(unsigned int length, unsigned int depth)
@@ -110,3 +104,23 @@ bool multi_iterator::advance()
 	return true;
 }
 // -------------------------------------------------------------------------------------------------
+/*
+ *
+ * Copyright (C) 2019-2020 Rafael M. Siejakowski
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License 
+ * version 2 as published by the Free Software Foundation; 
+ * later versions of the GNU General Public Licence do NOT apply.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 
+ * 02110-1301, USA.
+ *
+ */
