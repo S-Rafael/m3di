@@ -13,5 +13,8 @@ ${binary}: $(objects)
 clean:
 	rm -f *.o $(binary)
 
+install:
+	./install.sh $(binary)
+
 all: ${binary}
 
