@@ -7,22 +7,34 @@
 
 #include <fstream>
 #include <vector>
+#include <json/json.h>
 #include "manifold.h"
-#include "modes.h"
 
-void write_mode(int argc, char** argv);
-void store_integrand_values(Json::Value &target, mani_data &M, int samples);
+/*
+	This file declares the class multi_iterator and
+	the function store_integrand_values.
+	Both of them are specific to the 'write' mode.
 
-// This class iterates over a multidimensional array
+	class multi_iterator is a simple iterator which
+	iterates over the set [0,1,...,s-1]^d,
+	where d and s are arbitrary positive integers.
+	
+	store_integrand_values computes the values of the integrand
+	of the meromorphic 3D-index at sample points with prescribed
+	density and stores them in a Json::Value data structure.
+*/
+
+void store_integrand_values(Json::Value& target, mani_data& M, int samples);
+
 class multi_iterator
 {
-	unsigned int len;
-	unsigned int d;
-	unsigned int* buffer;
+	private:
+	unsigned int len; // size of each dimension
+	unsigned int d; // number of dimensions
+	std::vector<unsigned int> buffer; // buffer to store the current indices
 	public:
 	multi_iterator(unsigned int length, unsigned int depth);
-	~multi_iterator();
-	inline unsigned int* item() {return buffer;};
+	inline std::vector<unsigned int> item() {return buffer;};
 	bool advance();
 };
 

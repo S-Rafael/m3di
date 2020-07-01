@@ -4,10 +4,15 @@
  */
 #include "manifold.h"
 
-// ================================================================================================
-bool mani_data::read_json(char* filepath, Json::Value* root)
 /*
-	Reads and parses a JSON data file, filling in the structure fields accordingly.
+ *   Implementation of the class mani_data.
+ */
+
+// ================================================================================================
+bool mani_data::read_json(const char* filepath, Json::Value* root)
+/*
+	Reads and parses a JSON data file, filling in the JSON structure 'root' accordingly.
+	Thus, 'root' is essentially an output pointer.
 	Returns true on success, false on error.
 */
 {
@@ -17,7 +22,7 @@ bool mani_data::read_json(char* filepath, Json::Value* root)
 		std::cerr << "Error: file '" << filepath << "' cannot be opened for reading!" << std::endl;
 		return false;
 	}
-	// File is good, we initialize the json parser
+	// File is good, we initialize the JSON parser
 	Json::CharReaderBuilder parser;
 	std::string error;
 	// We parse the data using Json::parseFromStream
@@ -26,22 +31,23 @@ bool mani_data::read_json(char* filepath, Json::Value* root)
 	if (!success)
 	{
 		std::cerr << "Error: file '" << filepath << "' is not a valid JSON document!" << std::endl;
-		std::cerr << "--- error details:" << std::endl << error << std::endl;;
+		std::cerr << "--- error details:" << std::endl << error << std::endl;
 		return false;
 	}
 	return true;
 }
 // ================================================================================================
-bool mani_data::populate(char* json_file)
+bool mani_data::populate(const char* json_file)
 /*
-	Populates the structure with manifold data from the json file
-	with specified path. Returns true on success, false on failure.
+	Populates the data members of mani_data with manifold data, based
+	on the JSON file with specified path: 'json_file'.
+	Returns true on success, false on failure.
 */
 {
 	Json::Value json_data; // Data structure to be filled
 	if (!read_json(json_file, &json_data))
 		return false;
-	// Try interpreting the number of tetrahedra:
+	// Try reading in the number of tetrahedra:
 	try
 	{
 		N = json_data.get("N", 0).asInt();
@@ -79,8 +85,9 @@ bool mani_data::populate(char* json_file)
 		}
 		else if (k<1)
 		{
-			std::cerr << "Error: the manifold must have at least one boundary component." 
-			<< std::endl;
+			std::cerr << "Error: the manifold must have at least one boundary component."
+			" Please ensure that the matrix specified in the key \"L\" has at least "
+			<< N+2 << " rows." << std::endl;
 			return false;
 		}
 		for (unsigned int i=0; i<nrows; i++)
@@ -102,7 +109,7 @@ bool mani_data::populate(char* json_file)
 		<< "Please make sure that the key \"L\" contains an integer matrix." << std::endl;
 		return false;
 	}
-	// Read and validate the initial angle structure a in units of pi
+	// Read and validate the initial angle structure "a" (in units of pi)
 	Json::Value atemp;
 	try
 	{
@@ -111,31 +118,33 @@ bool mani_data::populate(char* json_file)
 		{
 			std::cerr << "Error: file '" << json_file << 
 			"' does not specify the key \"a\" correctly." << std::endl
-			<< "Please make sure that the key \"a\" is an array of length "
+			<< "Please make sure that the key \"a\" is an array of numbers of length "
 			<< ncols << "." << std::endl;
 			return false;
 		}
 	} 
-	catch (Json::LogicError &exception)
+	catch (Json::LogicError& exception)
 	{
 		std::cerr << "Error: file '" << json_file <<
-		"' does not specify the key \"a\" correctly." << std::endl;
+		"' does not specify the key \"a\" correctly." << std::endl
+		<< exception.what() << std::endl;
 		return false;
 	}
 	// Temporarily store the entries of a and L
-	vector<int> LTD_(ncols * nrows);
-	vector<double> angles_(ncols);
+	std::vector<int> LTD_(ncols * nrows);
+	std::vector<double> angles_(ncols);
 	try
 	{
 		for (unsigned int r = 0; r < nrows; r++)
 			for (unsigned int c=0; c < ncols; c++)
 				LTD_[ncols*r + c] = Ltemp[r][c].asInt();
 	}
-	catch (Json::LogicError &exception)
+	catch (Json::LogicError& exception)
 	{
 		std::cerr << "Error: file '" << json_file <<
 		"' does not specify the key \"L\" correctly." << std::endl
-		<< "Some of the entries could not be interpreted as integers." << std::endl;
+		<< "Some of the entries could not be interpreted as integers." << std::endl
+		<< "Specific error:" << std::endl << exception.what() << std::endl;
 		return false;
 	}
 	try
@@ -143,11 +152,12 @@ bool mani_data::populate(char* json_file)
 		for (unsigned int c=0; c < ncols; c++)
 			angles_[c] = atemp[c].asDouble();
 	}
-	catch (Json::LogicError &exception)
+	catch (Json::LogicError& exception)
 	{
 		std::cerr << "Error: file '" << json_file <<
 		"' does not specify the key \"a\" correctly." << std::endl
-		<< "Some of the entries could not be interpreted as floating point numbers." << std::endl;
+		<< "Some of the entries could not be interpreted as floating point numbers." << std::endl
+		<< "Specific error" << std::endl << exception.what() << std::endl;
 		return false;
 	}
 	// All is good, we move LTD_ to LTD and angles_ to angles
@@ -156,40 +166,43 @@ bool mani_data::populate(char* json_file)
 	return true;
 }
 // ================================================================================================
-mani_data::mani_data(char* filepath): valid_state(false), valid_precomp(false)
+mani_data::mani_data(const char* filepath): valid_state{false}, valid_precomp{false}
 /*
 	Constructor of class mani_data.
 	Takes the path of the JSON file with manifold description.
 */
 {
 	valid_state = populate(filepath);
-	if (valid_state)
+	if (valid_state) // Allocate array of pointers for precomputed factors:
 		precomputed_quads = new precomputed*[3*N];
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // ================================================================================================
 mani_data::~mani_data()
+/*
+	Class destructor
+*/
 {
 	if (valid_state)
 	{
-		//deallocate precomputed data
 		if (valid_precomp)
 		{
+			//deallocate precomputed data
 			for (int quad=0; quad<3*N; quad++)
 				delete precomputed_quads[quad];
-			delete [] precomputed_quads;
 		}
+		delete [] precomputed_quads;
 	}
 }
 // ================================================================================================
 void mani_data::precompute(std::complex<double> hbar, int samples)
 /*
 	This function precomputes the values of the individual
-	G_q factors of the integrand. Each factor is evaluated
-	on the unit circle with the given number of samples.
+	G_q(...) factors of the integrand. Each factor is evaluated
+	on a circle with the given number of samples;
+	the radius of the circle depends on the corresponding entry of 'angles'.
 */
 {
-	// TODO there's gotta be a better way to create thread objects, perhaps using jthread?
 	//precompute c(q)
 	cq_factor = c(exp(hbar));
 	for (int quad=0; quad<3*N; quad++)
@@ -197,13 +210,13 @@ void mani_data::precompute(std::complex<double> hbar, int samples)
 		// Launch precomputation for each G_q factor
 		precomputed_quads[quad] = new precomputed(angles[quad], hbar, samples);
 	}
+	valid_precomp = true;
 	// Precomputation threads are now running in parallel.
 	for (int quad=0; quad<3*N; quad++)
 		precomputed_quads[quad]->finish();
-	valid_precomp = true;
 }
 // ================================================================================================
-int mani_data::ltd_exponent(unsigned int* indices, int quad)
+int mani_data::ltd_exponent(std::vector<unsigned int>& indices, int quad)
 /*
 	Given variable indices, this function returns the sample index of the
 	product of N-1 edge vars at quad.
@@ -211,7 +224,7 @@ int mani_data::ltd_exponent(unsigned int* indices, int quad)
 */
 {
 	int sum=0;
-	for (int edge=0; edge<N-1; edge++) //last edge variable omitted
+	for (int edge=0; edge<N-1; edge++) // last edge variable omitted
 		sum += indices[edge] * LTD[(3*N*edge) + quad];
 	return sum;
 }

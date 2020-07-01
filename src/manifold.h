@@ -12,42 +12,79 @@
 #include <json/json.h>
 #include "precompute.h"
 
-// Main class representing the combinatorics of a triangulation.
+/*
+ * class mani_data
+ * 
+ * This is the main class representing the necessary triangulation data and storing
+ * precomputed values of the functions G_q which appear as factors of the integrand.
+ *
+ * Public member functions:
+ *
+ * mani_data(char* filepath)       - class constructor. Takes in the path to a JSON file.
+ * 
+ * ~mani_data()                    - destructor
+ * 
+ * int ltd_exponent(indices, quad) - returns t*l(□), where t is the vector 'indices' and
+ *                                   □ is the normal quad with the index 'quad'.
+ *
+ * precompute(hbar, samples)       - Precomputes the values of G_q(...) occurring as factors
+ *                                 - of the integrand.
+ *
+ * unsigned int num_tetrahedra()   - returns the number of tetrahedra in the triangulation
+ * 
+ * bool is_valid()                 - tells whether the object has been initialized correctly
+ *                                   and is in a valid state
+ *
+ * bool ready()                    - tells whether the values of G_q(...) factors have been
+ *                                   precomputed successfully, so that the integrand can be
+ *                                   evaluated
+ *
+ * std::complex<double> get_integrand_value(indices) 
+ *                                 - returns the value of the integrand at the point defined
+ *                                   by the indices. Each index runs from 0 to samples.
+ *
+ */
+
 class mani_data
 {
 	private:
 	bool valid_state, valid_precomp; // state variables
 	int N, k; // Number of tetrahedra and cusps
-	vector<double> angles; //initial angle structure (in units of pi)
+	std::vector<double> angles; //initial angle structure (in units of pi)
 	std::complex<double> cq_factor; // c(q)
-	vector<int> LTD; // Leading-trailing matrix as a flattened vector
+	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	precomputed** precomputed_quads; // to store precomputed G_q values
-	bool read_json(char* filepath, Json::Value* root);
-	bool populate(char* filepath);
+
+	// private IO member functions
+	bool read_json(const char* filepath, Json::Value* root);
+	bool populate(const char* filepath);
 
 	public:
-	mani_data(char* filepath);
+	mani_data(const char* filepath);
 	~mani_data();
-	int ltd_exponent(unsigned int* indices, int quad);
+	int ltd_exponent(std::vector<unsigned int>& indices, int quad);
 	void precompute(std::complex<double> hbar, int samples);
-	// Some inline getters
-	inline unsigned int num_tetrahedra() {return N;}
-	inline bool is_valid() {return valid_state;}
-	inline bool ready() {return (valid_state && valid_precomp);}
-	// this one is more complicated but the loop has N iterations only
-	inline std::complex<double> get_integrand_value(unsigned int* yindices) {
+	// Some inline getters:
+	inline unsigned int num_tetrahedra() const {return N;}
+	inline unsigned int num_cusps() const {return k;}
+	inline bool is_valid() const {return valid_state;}
+	inline bool ready() const {return (valid_state && valid_precomp);}
+	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) 
+	/*
+		Computes the value of the integrand at the prescribed indices
+	*/
+	{
 			std::complex<double> prod = 1.0; // we multiply tetrahedral weigths
 			for (int j = 0; j < N; j++) // weight of tetrahedron j:
-				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(yindices, 3*j  ))
-				      * precomputed_quads[3*j+1]->get(ltd_exponent(yindices, 3*j+1))
-				      * cq_factor
-				      * precomputed_quads[3*j+2]->get(ltd_exponent(yindices, 3*j+2));
+				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(indices, 3*j  ))
+				      * precomputed_quads[3*j+1]->get(ltd_exponent(indices, 3*j+1))
+				      * cq_factor // maybe this increases numerical stability?
+				      * precomputed_quads[3*j+2]->get(ltd_exponent(indices, 3*j+2));
 			return prod;
 	}
 };
 
 #endif
-
 /*
  *
  * Copyright (C) 2019-2020 Rafael M. Siejakowski

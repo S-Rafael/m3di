@@ -9,20 +9,38 @@
 #include <fstream>
 #include <string>
 #include "manifold.h"
-#include "integrate.h"
+#include "integrator.h"
 #include "write.h"
+#include "io.h"
+
+/*
+ * This file declares the subroutines which serve as sub-'main'-s of 
+ * several different modes of the program, such as:
+ *
+ * integrate_mode(argc, argv),
+ * write_mode(argc, argv)
+ * and possibly others in the future.
+ *
+ * Additionally, we declare the function decide_mode() which
+ * tells us which mode the program should run in.
+ *
+ * Also, we have helper functions display_usage() and display_help().
+ *
+ */
 
 enum program_mode {MODE_INTEGRATE, MODE_USAGE, MODE_HELP, MODE_WRITE};
-const std::string MODE_INTEGRATE_STRING = std::string("integrate");
-const std::string MODE_HELP_STRING_1    = std::string("help");
-const std::string MODE_HELP_STRING_2    = std::string("--help");
-const std::string MODE_WRITE_STRING     = std::string("write");
+const std::string MODE_INTEGRATE_STRING {"integrate"};
+const std::string MODE_HELP_STRING_1    {"help"};
+const std::string MODE_HELP_STRING_2    {"--help"};
+const std::string MODE_WRITE_STRING     {"write"};
 
-void display_usage();
-void display_help();
+program_mode decide_mode(int argc, const char** argv);
+void integrate_mode(int argc, const char** argv);
+void write_mode(int argc, const char** argv);
 
-program_mode decide_mode(int argc, char** argv);
-bool validate_q_and_samples(double Rehbar, double Imhbar, int samples);
+void display_usage(int argc, const char** argv);
+void display_help(int argc, const char** argv);
+
 #endif
 
 /*

@@ -5,9 +5,9 @@
 #include "modes.h"
 
 //==========================================================================================
-program_mode decide_mode(int argc, char** argv)
+program_mode decide_mode(int argc, const char** argv)
 /*
-	Based on argc, argv, decide which mode the program should run in
+	Based on argc, argv, return the mode in which the program should run in.
 */
 {
 	if (argc < 2) // Not enough parameters
@@ -18,7 +18,7 @@ program_mode decide_mode(int argc, char** argv)
 	if (mode_string == MODE_INTEGRATE_STRING)
 	{
 		// for MODE_INTEGRATE, we expect 4 more positional params:
-		// infile
+		// infile [Json]
 		// Re(hbar)
 		// Im(hbar)
 		// samples
@@ -45,12 +45,112 @@ program_mode decide_mode(int argc, char** argv)
 		return MODE_USAGE;
 }
 //==========================================================================================
-void display_usage()
+void integrate_mode(int argc, const char** argv)
+/*
+	This function implements the integration mode,
+	which is the main mode of the program.
+*/
+{
+	// Parse hbar and sample count (positional command line parameters)
+	double Rehbar = parse_double(argv[3]);
+	double Imhbar = parse_double(argv[4]);
+	int samples = parse_int(argv[5]);
+	// Validate command line input
+	if (!validate_q_and_samples(Rehbar, samples)) return;
+	// Prepare basic data
+	std::complex<double> hbar {Rehbar, Imhbar};
+	mani_data M = mani_data(argv[2]); 
+	if (!M.is_valid())
+	{
+		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
+		             "manifold specification!" << std::endl;
+		return;
+	}
+	// ==== Compute the state integral of the meromorphic 3D-index ====
+	integrator I(M, hbar, samples);
+	std::complex<double> integral = I.compute_integral();
+	// ==== Format output ====
+	// Format the given hbar_value
+	std::ostringstream hbar_given;
+	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
+	// Create JSON representation of output
+	Json::Value output;
+	output["hbar_given"] = hbar_given.str();
+	output["samples"] = samples;
+	output["hbar_real_part"] = Rehbar;
+	output["hbar_imag_part"] = Imhbar;
+	output["int_real_part"] = integral.real();
+	output["int_imag_part"] = integral.imag();
+	// Output data
+	Json::StreamWriterBuilder builder;
+	builder["indentation"] = "\t";
+	builder.settings_["precision"] = 320;
+	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+	writer->write(output, &std::cout); // TODO: implement output to file
+	std::cout << std::endl;
+}
+//==========================================================================================
+void write_mode(int argc, const char** argv)
+/*
+	This function implements the write mode,
+	which outputs the integrand values as JSON data.
+*/
+{
+	// Parse hbar and sample count
+	double Rehbar = parse_double(argv[3]);
+	double Imhbar = parse_double(argv[4]);
+	int samples = parse_int(argv[5]);
+	if (!validate_q_and_samples(Rehbar, samples)) return;
+	// Set up basic data
+	std::complex<double> hbar {Rehbar, Imhbar};
+	mani_data M = mani_data(argv[2]); 
+	if (!M.is_valid())
+	{
+		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
+		             "manifold specification!" << std::endl;
+		return;
+	}
+	// M is OK, we launch precomputation
+	M.precompute(hbar, samples);
+	if (!M.ready())
+	{
+		std::cerr << "Error while computing integrand values." << std::endl;
+		return;
+	}
+	// Create JSON representation of output
+	Json::Value output;
+	output["samples"] = samples;
+	output["hbar_real_part"] = Rehbar;
+	output["hbar_imag_part"] = Imhbar;
+	// Compute the integrand values and store them in output
+	store_integrand_values(output, M, samples);
+	// Format the given hbar_value
+	std::ostringstream hbar_given;
+	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
+	// Output data
+	output["hbar_given"] = hbar_given.str();
+	Json::StreamWriterBuilder builder;
+	builder["indentation"] = "\t";
+	builder.settings_["precision"] = 64;
+	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+	writer->write(output, &std::cout); // TODO: allow output to file
+	std::cout << std::endl;
+}
+//==========================================================================================
+void display_usage(int argc, const char** argv)
+/*
+	Outputs to stdout a brief message about the usage of the tool.
+ */
 {
 	using namespace std;
 	cout 
-	          << "Usage:" << endl << endl
-	          << "m3di MODE PARAMETERS" << endl << endl
+	          << "Usage:" << endl << endl;
+	if (argc)
+		cout << argv[0];
+	else
+		cout << "m3di"; //default executable name
+        cout
+	          << " MODE PARAMETERS" << endl << endl
 	          << "Avaliable modes are:" << endl
 	          << MODE_INTEGRATE_STRING << endl
 	          << MODE_WRITE_STRING << endl
@@ -58,22 +158,25 @@ void display_usage()
 	          << "Type \"m3di " << MODE_HELP_STRING_1 << "\" for help." << endl;
 }
 //==========================================================================================
-void display_help()
+void display_help(int argc, const char** argv)
 {
+	std::string executable((argc)? argv[0]: "m3di");
 	std::cout << 
-"m3di - a program for computing the meromorphic 3D-index\n\n"
+executable <<
+" - a program for computing the meromorphic 3D-index\n\n"
 "Commandline syntax:\n"
-"m3di COMMAND PARAMETERS\n\n"
+<< executable <<
+" COMMAND PARAMETERS\n\n"
 "Available COMMANDs:\n"
 "integrate\n"
 "          The integrate command is used to compute the total meromorphic 3D-index.\n"
 "          The syntax for this mode is:\n"
-"              m3di integrate <file> <Re_hbar> <Im_hbar> <samples>\n"
+"              " << executable << " integrate <file> <Re_hbar> <Im_hbar> <samples>\n"
 "          The meaning of the parameters is as follows:\n"
-"          <file>    - The path to a JSON file containing combinatorial information\n"
+"          <file>    - Path to a JSON file containing combinatorial information\n"
 "                      about the triangulated 3-manifold.\n"
-"          <Re_hbar> - The real part of the parameter hbar of meromorphic 3D-index.\n"
-"          <Im_hbar> - The imaginary part of the parameter hbar.\n"
+"          <Re_hbar> - The real part of the parameter 'hbar' of meromorphic 3D-index.\n"
+"          <Im_hbar> - The imaginary part of the parameter 'hbar'.\n"
 "          <samples> - A positive integer specifying how many sample points are to be\n"
 "                      taken in each iterated integral. A higher sample count generally\n"
 "                      results in a higher accuracy of the result but also in a slower\n"
@@ -83,34 +186,8 @@ void display_help()
 "          This command does not compute the state integral, but rather writes out sampled\n"
 "          values of the integrand as JSON data to the standard output.\n"
 "          The syntax for this mode is:\n"
-"              m3di write <file> <Re_hbar> <Im_hbar> <samples>\n"
-"          The meaning of the parameters is as follows:\n"
-"          <file>    - The path to a JSON file containing combinatorial information\n"
-"                      about the triangulated 3-manifold.\n"
-"          <Re_hbar> - The real part of the parameter hbar of meromorphic 3D-index.\n"
-"          <Im_hbar> - The imaginary part of the parameter hbar.\n"
-"          <samples> - A positive integer specifying how many sample points are to be\n"
-"                      taken in each iterated integral. A higher sample count generally\n"
-"                      results in a higher accuracy of the result but also in a slower\n"
-"                      computation.\n\n";
-}
-//==========================================================================================
-bool validate_q_and_samples(double Rehbar, double Imhbar, int samples)
-{
-	// Checks if the values have been specified correctly
-	// Returns true on valid data, false on invalid.
-	if (samples < 1)
-	{
-		std::cerr << "Error: The number of samples must be a positive integer!" << std::endl;
-		return false;
-	}
-	double a = exp(Rehbar); // a = |q|
-	if (a < DBL_MIN || a >= 1.0)
-	{
-		std::cerr << "Error: The value of q specified does not satisfy 0<|q|<1!" << std::endl;
-		return false;
-	}
-	return true;
+"              " << executable << " write <file> <Re_hbar> <Im_hbar> <samples>\n"
+"          The meaning of the parameters is identical as in the integrate mode.\n\n";
 }
 //==========================================================================================
 /*

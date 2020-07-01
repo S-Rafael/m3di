@@ -31,7 +31,7 @@
 #include "modes.h"
 
 //=======================================================================================
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
 	program_mode mode = decide_mode(argc, argv);
 	switch (mode)
@@ -40,14 +40,14 @@ int main(int argc, char** argv)
 			integrate_mode(argc, argv);
 			break;
 		case MODE_HELP:
-			display_help();
+			display_help(argc, argv);
 			break;
 		case MODE_WRITE:
 			write_mode(argc, argv);
 			break;
 		case MODE_USAGE:
 		default:
-			display_usage();
+			display_usage(argc, argv);
 	}
 	return 0;
 }
