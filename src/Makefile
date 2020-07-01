@@ -14,7 +14,7 @@ clean:
 	rm -f *.o $(binary)
 
 install:
-	./install.sh $(binary)
+	@./install.sh $(binary)
 
 all: ${binary}
 
