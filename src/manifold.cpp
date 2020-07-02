@@ -166,33 +166,20 @@ bool mani_data::populate(const char* json_file)
 	return true;
 }
 // ================================================================================================
-mani_data::mani_data(const char* filepath): valid_state{false}, valid_precomp{false}
+mani_data::mani_data(const char* filepath)
 /*
 	Constructor of class mani_data.
 	Takes the path of the JSON file with manifold description.
 */
+: valid_state{false}, valid_precomp{false}
 {
 	valid_state = populate(filepath);
-	if (valid_state) // Allocate array of pointers for precomputed factors:
-		precomputed_quads = new precomputed*[3*N];
-	else std::cerr << "Could not load triangulation info." << std::endl;
-}
-// ================================================================================================
-mani_data::~mani_data()
-/*
-	Class destructor
-*/
-{
 	if (valid_state)
 	{
-		if (valid_precomp)
-		{
-			//deallocate precomputed data
-			for (int quad=0; quad<3*N; quad++)
-				delete precomputed_quads[quad];
-		}
-		delete [] precomputed_quads;
+		// Allocate the vector for shared_ptr's to precomputed factors:
+		precomputed_quads.resize(3*N);
 	}
+	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // ================================================================================================
 void mani_data::precompute(std::complex<double> hbar, int samples)
@@ -203,17 +190,19 @@ void mani_data::precompute(std::complex<double> hbar, int samples)
 	the radius of the circle depends on the corresponding entry of 'angles'.
 */
 {
+	if (!valid_state)
+		return;
 	//precompute c(q)
 	cq_factor = c(exp(hbar));
 	for (int quad=0; quad<3*N; quad++)
 	{
 		// Launch precomputation for each G_q factor
-		precomputed_quads[quad] = new precomputed(angles[quad], hbar, samples);
+		precomputed_quads[quad] = std::make_shared<precomputed>(angles[quad], hbar, samples);
 	}
-	valid_precomp = true;
 	// Precomputation threads are now running in parallel.
 	for (int quad=0; quad<3*N; quad++)
 		precomputed_quads[quad]->finish();
+	valid_precomp = true;
 }
 // ================================================================================================
 int mani_data::ltd_exponent(std::vector<unsigned int>& indices, int quad)

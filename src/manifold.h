@@ -53,7 +53,7 @@ class mani_data
 	std::vector<double> angles; //initial angle structure (in units of pi)
 	std::complex<double> cq_factor; // c(q)
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
-	precomputed** precomputed_quads; // to store precomputed G_q values
+	std::vector<std::shared_ptr<precomputed>> precomputed_quads; // to store precomputed G_q values
 
 	// private IO member functions
 	bool read_json(const char* filepath, Json::Value* root);
@@ -61,7 +61,7 @@ class mani_data
 
 	public:
 	mani_data(const char* filepath);
-	~mani_data();
+	~mani_data() = default;
 	int ltd_exponent(std::vector<unsigned int>& indices, int quad);
 	void precompute(std::complex<double> hbar, int samples);
 	// Some inline getters:
