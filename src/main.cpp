@@ -34,22 +34,23 @@
 int main(int argc, const char** argv)
 {
 	program_mode mode = decide_mode(argc, argv);
+	int exit_code {0};
 	switch (mode)
 	{
 		case MODE_INTEGRATE:
-			integrate_mode(argc, argv);
+			exit_code = integrate_mode(argc, argv);
 			break;
 		case MODE_HELP:
-			display_help(argc, argv);
+			exit_code = display_help(argc, argv);
 			break;
 		case MODE_WRITE:
-			write_mode(argc, argv);
+			exit_code = write_mode(argc, argv);
 			break;
 		case MODE_USAGE:
 		default:
-			display_usage(argc, argv);
+			exit_code = display_usage(argc, argv);
 	}
-	return 0;
+	return exit_code;
 }
 //=======================================================================================
 

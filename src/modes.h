@@ -35,11 +35,11 @@ const std::string MODE_HELP_STRING_2    {"--help"};
 const std::string MODE_WRITE_STRING     {"write"};
 
 program_mode decide_mode(int argc, const char** argv);
-void integrate_mode(int argc, const char** argv);
-void write_mode(int argc, const char** argv);
+int integrate_mode(int argc, const char** argv);
+int write_mode(int argc, const char** argv);
 
-void display_usage(int argc, const char** argv);
-void display_help(int argc, const char** argv);
+int display_usage(int argc, const char** argv);
+int display_help(int argc, const char** argv);
 
 #endif
 

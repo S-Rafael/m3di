@@ -45,7 +45,7 @@ program_mode decide_mode(int argc, const char** argv)
 		return MODE_USAGE;
 }
 //==========================================================================================
-void integrate_mode(int argc, const char** argv)
+int integrate_mode(int argc, const char** argv)
 /*
 	This function implements the integration mode,
 	which is the main mode of the program.
@@ -56,7 +56,7 @@ void integrate_mode(int argc, const char** argv)
 	double Imhbar = parse_double(argv[4]);
 	int samples = parse_int(argv[5]);
 	// Validate command line input
-	if (!validate_q_and_samples(Rehbar, samples)) return;
+	if (!validate_q_and_samples(Rehbar, samples)) return 1;
 	// Prepare basic data
 	std::complex<double> hbar {Rehbar, Imhbar};
 	mani_data M = mani_data(argv[2]); 
@@ -64,7 +64,7 @@ void integrate_mode(int argc, const char** argv)
 	{
 		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
 		             "manifold specification!" << std::endl;
-		return;
+		return 1;
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
 	integrator I(M, hbar, samples);
@@ -88,9 +88,10 @@ void integrate_mode(int argc, const char** argv)
 	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
 	writer->write(output, &std::cout); // TODO: implement output to file
 	std::cout << std::endl;
+	return 0;
 }
 //==========================================================================================
-void write_mode(int argc, const char** argv)
+int write_mode(int argc, const char** argv)
 /*
 	This function implements the write mode,
 	which outputs the integrand values as JSON data.
@@ -100,7 +101,7 @@ void write_mode(int argc, const char** argv)
 	double Rehbar = parse_double(argv[3]);
 	double Imhbar = parse_double(argv[4]);
 	int samples = parse_int(argv[5]);
-	if (!validate_q_and_samples(Rehbar, samples)) return;
+	if (!validate_q_and_samples(Rehbar, samples)) return 1;
 	// Set up basic data
 	std::complex<double> hbar {Rehbar, Imhbar};
 	mani_data M = mani_data(argv[2]); 
@@ -108,14 +109,14 @@ void write_mode(int argc, const char** argv)
 	{
 		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
 		             "manifold specification!" << std::endl;
-		return;
+		return 1;
 	}
 	// M is OK, we launch precomputation
 	M.precompute(hbar, samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;
-		return;
+		return 1;
 	}
 	// Create JSON representation of output
 	Json::Value output;
@@ -135,9 +136,10 @@ void write_mode(int argc, const char** argv)
 	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
 	writer->write(output, &std::cout); // TODO: allow output to file
 	std::cout << std::endl;
+	return 0;
 }
 //==========================================================================================
-void display_usage(int argc, const char** argv)
+int display_usage(int argc, const char** argv)
 /*
 	Outputs to stdout a brief message about the usage of the tool.
  */
@@ -156,9 +158,10 @@ void display_usage(int argc, const char** argv)
 	          << MODE_WRITE_STRING << endl
 	          << MODE_HELP_STRING_1 << endl << endl
 	          << "Type \"m3di " << MODE_HELP_STRING_1 << "\" for help." << endl;
+	return 0;
 }
 //==========================================================================================
-void display_help(int argc, const char** argv)
+int display_help(int argc, const char** argv)
 {
 	std::string executable((argc)? argv[0]: "m3di");
 	std::cout << 
@@ -188,6 +191,7 @@ executable <<
 "          The syntax for this mode is:\n"
 "              " << executable << " write <file> <Re_hbar> <Im_hbar> <samples>\n"
 "          The meaning of the parameters is identical as in the integrate mode.\n\n";
+	return 0;
 }
 //==========================================================================================
 /*
