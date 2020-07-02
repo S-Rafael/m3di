@@ -9,10 +9,10 @@
 */
 // ================================================================================================
 integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar, unsigned int sam)
-	: num_threads {1}, M {nullptr}, hbar {given_hbar}
 /*
 	Constructor of class 'integrator'.
 */
+: num_threads {1}, hbar {given_hbar}
 {
 	if (sam < 1) sam = 1; // Make sure there's at least one sample point
 	M = std::make_shared<mani_data>(Triangulation); //Store a shared pointer to triangulation data
