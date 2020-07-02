@@ -167,7 +167,7 @@ int display_help(int argc, const char** argv)
 	std::cout << 
 executable <<
 " - a program for computing the meromorphic 3D-index\n\n"
-"Commandline syntax:\n"
+"Command line syntax:\n"
 << executable <<
 " COMMAND PARAMETERS\n\n"
 "Available COMMANDs:\n"
