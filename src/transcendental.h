@@ -8,6 +8,7 @@
 #include <complex>
 #include <cfloat>
 #include <limits>
+#include <cmath>
 
 /*
 	Here we declare some constants and the functions G_q, c
@@ -28,10 +29,10 @@ CC c(CC q) noexcept;
 
 // Inline helper functions:
 inline CC square(CC z) {return z*z;};
-inline bool nonzero(CC a)
+inline bool is_tiny(CC a)
 {
 	// This is a lot faster than complex abs()
-	return abs(a.real())>DBL_MIN || abs(a.imag())>DBL_MIN ;
+	return (std::abs(a.real()) < DBL_MIN && std::abs(a.imag()) < DBL_MIN);
 }
 
 #endif

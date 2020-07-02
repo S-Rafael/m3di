@@ -15,26 +15,24 @@ CC G_q(CC q, CC z) noexcept
  * However, if we hit a pole, the return value may be infinity
  */
 {
-	if (!nonzero(z))
+	if (is_tiny(z))
 		return INFTY; // at z=0, G_q(z) has an essential singularity.
-	CC one_minus_z = 1.0 - z;
-	if (!nonzero(one_minus_z))
-		return INFTY; // at z=1, G_q(z) has a pole.
 	CC numerator = 1.0; // initial value 1
-	CC denominator = one_minus_z;  // initial value 1-z
+	CC denominator = 1.0 - z;  // initial value 1-z
 	// at first, we take the terms q^n / z, q^n * z with n=1,
 	CC q_to_n_times_z = q * z; 
 	CC q_to_n_over_z = q / z; // safe as z != 0
-	while (!nonzero(q_to_n_over_z)) // main loop runs until q_to_n_over_z is indistinguishable from 0.
+	while (!is_tiny(q_to_n_over_z)) // main loop runs until q_to_n_over_z is indistinguishable from 0.
 	{
 		numerator *= 1.0 + q_to_n_over_z;
 		denominator *= 1.0 - q_to_n_times_z;
 		q_to_n_over_z *= q;
 		q_to_n_times_z *= q;
 	}
-	if (!nonzero(denominator))
+	if (is_tiny(denominator))
 		return INFTY;
-	return numerator/denominator;  // Costly call to __divdc3 happens only once
+	else
+		return numerator/denominator;  // Costly call to __divdc3 happens only once
 }
 // ================================================================================================
 CC c(CC q) noexcept
@@ -43,15 +41,16 @@ CC c(CC q) noexcept
 	CC numerator = 1.0;
 	CC denominator = 1.0;
 	CC q_to_n = q;
-	while (nonzero(q_to_n))
+	while (!is_tiny(q_to_n))
 	{
 		numerator *= square(1.0 - q_to_n);
 		denominator *= (1.0 - square(q_to_n));
 		q_to_n *= q;
 	}
-	if (!nonzero(denominator))
+	if (is_tiny(denominator))
 		return INFTY;
-	return numerator/denominator;
+	else
+		return numerator/denominator;
 }
 // ================================================================================================
 /*
