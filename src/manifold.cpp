@@ -144,7 +144,7 @@ bool mani_data::populate(const char* json_file)
 		std::cerr << "Error: file '" << json_file <<
 		"' does not specify the key \"L\" correctly." << std::endl
 		<< "Some of the entries could not be interpreted as integers." << std::endl
-		<< "Specific error:" << std::endl << exception.what() << std::endl;
+		<< "Detailed error description:\n\"" << exception.what() << "\"\n";
 		return false;
 	}
 	try
@@ -157,7 +157,7 @@ bool mani_data::populate(const char* json_file)
 		std::cerr << "Error: file '" << json_file <<
 		"' does not specify the key \"a\" correctly." << std::endl
 		<< "Some of the entries could not be interpreted as floating point numbers." << std::endl
-		<< "Specific error" << std::endl << exception.what() << std::endl;
+		<< "Detailed error description:\n\"" << exception.what() << "\"\n";
 		return false;
 	}
 	// All is good, we move LTD_ to LTD and angles_ to angles
