@@ -90,6 +90,12 @@ def test_integrate(known_dict, executable, samples, precision):
 		return False
 	return True
 
+def green(text):
+	""" 
+	Surrounds 'text' with POSIX shell green color begin and end commands
+	"""
+	return "\033[0;32m" + text + "\033[0m"
+
 def get_executable_path():
 	"""
 	Returns the path to the m3di executable
@@ -114,8 +120,37 @@ def test_known_values(executable):
 		for S in sample_counts:
 			result = test_integrate(K, executable, S, precision)
 			if (result):
-				print(("Test %d:"%test_number) + '\033[0;32m\tPASS\033[0m')
+				print(("Test %02d:\t"%test_number) + green("PASS"))
 			test_number += 1
+
+def test_malformed_JSON(executable, path):
+	"""
+	Tests the behaviour of 'executable' when passed the 'path'
+	to a malformed JSON data file.
+	"""
+	test = subprocess.run([executable, 
+	                       'integrate',
+	                       path,
+	                       "-0.1", "0.0", "10"], # just 10 samples in case it takes too long
+	                       capture_output=True)
+	if (test.returncode == 0):
+		return False # retcode == 0 means error wasn't detected
+	else:
+		return True # retcode != 0 means the program correctly detected the error
+
+def test_malformed_input(executable):
+	"""
+	Tests against malformed JSON input
+	"""
+	malformed_count = 15 # increase when you add extra tests
+	print("Testing against malformed JSON input...")
+	test_number = 1
+	for m in range(malformed_count):
+		malformed_file = "malformed%d.json"%m
+		result = test_malformed_JSON(executable, malformed_file)
+		if (result):
+			print(("Test %02d: '%s':\t"%(test_number,malformed_file)) + green("PASS"))
+		test_number += 1
 
 def run_tests():
 	"""
@@ -123,6 +158,7 @@ def run_tests():
 	"""
 	program = get_executable_path()
 	print("Testing executable at %s ..."%program)
+	test_malformed_input(program)
 	test_known_values(program)
 
 run_tests()
