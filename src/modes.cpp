@@ -14,7 +14,7 @@ program_mode decide_mode(int argc, const char** argv)
 	{
 		return MODE_USAGE;
 	}
-	std::string mode_string = std::string(argv[1]);
+	std::string mode_string(argv[1]);
 	if (mode_string == MODE_INTEGRATE_STRING)
 	{
 		// for MODE_INTEGRATE, we expect 4 more positional params:
@@ -79,10 +79,16 @@ int integrate_mode(int argc, const char** argv)
 	output["samples"] = samples;
 	output["hbar_real_part"] = Rehbar;
 	output["hbar_imag_part"] = Imhbar;
+	// Check if the returned value of the integral is infinity or NaN
 	if (integral == INFTY)
 	{
 		output["int_real_part"] = "infinity";
 		output["int_imag_part"] = "infinity";
+	}
+	else if (std::isnan(integral.real()) || std::isnan(integral.imag())) 
+	{
+		output["int_real_part"] = "infinity or removable singularity";
+		output["int_imag_part"] = "infinity or removable singularity";
 	}
 	else
 	{

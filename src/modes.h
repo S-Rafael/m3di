@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
 #include "manifold.h"
 #include "integrator.h"
 #include "write.h"
