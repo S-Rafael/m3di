@@ -28,8 +28,16 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 		// Fill in a Json::Value point structure
 		Json::Value point;
 		point["t"] = pts_array;
-		point["real"] = val.real();
-		point["imag"] = val.imag();
+		if (val == INFTY)
+		{
+			point["real"] = "infinity";
+			point["imag"] = "infinity";
+		}
+		else
+		{
+			point["real"] = val.real();
+			point["imag"] = val.imag();
+		}
 		target["points"].append(point); 
 	} while (indices.advance());
 }

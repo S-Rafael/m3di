@@ -9,6 +9,7 @@
 #include <vector>
 #include <json/json.h>
 #include "manifold.h"
+#include "constants.h"
 
 /*
 	This file declares the class multi_iterator and
