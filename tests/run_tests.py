@@ -39,7 +39,13 @@ KnownIntegralValues = [
 	 'hbar': -0.10869565217391304046135047656207461841404438018798828125,
 	 'value_real': 4.59545783844553401564780870103277266025543212890625,
 	 'value_imag': 0.0
-	}]
+	},
+	{'json': "NaN.json",
+	 'hbar': -0.1,
+	 'value_real': 'infinity or removable singularity',
+	 'value_imag': 'infinity or removable singularity'
+	}
+	]
 
 def test_integrate(known_dict, executable, samples, precision):
 	"""
@@ -72,6 +78,11 @@ def test_integrate(known_dict, executable, samples, precision):
 		print("Returned bytes:\n---")
 		print(test.stdout)
 		return False
+	# Check if returned values are exactly equal to the known ones
+	if (output['int_real_part'] == known_dict['value_real'] and
+	    output['int_imag_part'] == known_dict['value_imag']):
+		return True
+	# otherwise, we check the numerical error
 	real_error = output['int_real_part'] - known_dict['value_real']
 	imag_error = output['int_imag_part'] - known_dict['value_imag']
 	if (abs(real_error) > precision):
