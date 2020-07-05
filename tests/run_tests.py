@@ -122,8 +122,10 @@ def run_tests():
 	Runs all tests.
 	"""
 	program = get_executable_path()
+	print("Testing executable at %s ..."%program)
 	test_known_values(program)
 
+run_tests()
 
 #
 # Copyright (C) 2020 Rafael M. Siejakowski
