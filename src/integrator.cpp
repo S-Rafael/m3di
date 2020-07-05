@@ -42,14 +42,14 @@ std::complex<double> integrator::compute_integral()
 		std::vector<std::thread> threads(num_threads);
 		unsigned int samples_per_thread = samples/num_threads; //integer division is exact, see __MK_DIV__
 		// Allocate an array of complex numbers to store thread results
-		std::complex<double>* thread_results = new std::complex<double>[num_threads];
+		std::vector<std::complex<double>> thread_results(num_threads);
 		for (unsigned int t = 0; t < num_threads; t++)
 		{
 			// At the top level of recursion, we split the integration
 			// domain between the threads:
 			unsigned int from = t     * samples_per_thread;
 			unsigned int to   = (t+1) * samples_per_thread;
-			threads[t] = std::thread(thread_worker, this, &(thread_results[t]), from, to);
+			threads[t] = std::thread(thread_worker, this, t + thread_results.data(), from, to);
 		}
 		// Threads are now running in parallel.
 		for (unsigned int t=0; t < num_threads; t++)
@@ -64,7 +64,6 @@ std::complex<double> integrator::compute_integral()
 		// Add up thread results
 		for (unsigned int t=0; t < num_threads; t++)
 			thread_sum += thread_results[t];
-		delete [] thread_results;
 		result = thread_sum.total();
 	}
 	else // Single-threaded computation
