@@ -12,6 +12,7 @@
 #include "integrator.h"
 #include "write.h"
 #include "io.h"
+#include "constants.h"
 
 /*
  * This file declares the subroutines which serve as sub-'main'-s of 

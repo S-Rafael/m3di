@@ -79,8 +79,16 @@ int integrate_mode(int argc, const char** argv)
 	output["samples"] = samples;
 	output["hbar_real_part"] = Rehbar;
 	output["hbar_imag_part"] = Imhbar;
-	output["int_real_part"] = integral.real();
-	output["int_imag_part"] = integral.imag();
+	if (integral == INFTY)
+	{
+		output["int_real_part"] = "infinity";
+		output["int_imag_part"] = "infinity";
+	}
+	else
+	{
+		output["int_real_part"] = integral.real();
+		output["int_imag_part"] = integral.imag();
+	}
 	// Output data
 	Json::StreamWriterBuilder builder;
 	builder["indentation"] = "\t";
