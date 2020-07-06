@@ -40,13 +40,57 @@ KnownIntegralValues = [
 	 'value_real': 4.59545783844553401564780870103277266025543212890625,
 	 'value_imag': 0.0
 	},
-	{'json': "NaN.json",
-	 'hbar': -0.1,
-	 'value_real': 'infinity or removable singularity',
-	 'value_imag': 'infinity or removable singularity'
-	}
 	]
-
+#==================================================================================================
+def test_NaN(executable):
+	"""
+	Tests the behaviour of the executable with a JSON file
+	that produces a NaN value of the integral.
+	"""
+	nan_dict = {'json': "NaN.json",	 'hbar': -0.1}
+	nan_samples = 20 # enough for us, for it suffices to hit one singularity
+	test = subprocess.run([executable, 
+	                       'integrate',
+	                       nan_dict['json'],
+	                       "%.60f"%nan_dict['hbar'], "0.0", "%d"%nan_samples],
+	                       capture_output=True)
+	# We expect retcode = 0
+	if (test.returncode != 0):
+		return False 
+	# We expect no error
+	if (test.stderr != b''):
+		print("There were errors when running\n%s integrate %s %.60f 0.0 %d"%(
+			executable, nan_dict['json'], nan_dict['hbar'], nan_samples))
+		print("Error message:")
+		print(test.stderr)
+		return False
+	# We expect the integral value to be in the result JSON
+	output = json.loads(test.stdout)
+	if (not 'int_real_part' in output) or (not 'int_imag_part' in output):
+		print("Error: incorrect return format of %s:"%executable)
+		print("Returned bytes:\n---")
+		print(test.stdout)
+		return False
+	# Check if returned values are exactly equal to the known ones
+	if (output['int_real_part'] == 'infinity or removable singularity' and
+	    output['int_imag_part'] == 'infinity or removable singularity'):
+		return True
+	else:
+		print("Error: NaN integral value reported as " + output['int_real_part'] + ", " 
+		      + output['int_imag_part'] + ".")
+		return False
+#==================================================================================================
+def test_singular(executable):
+	"""
+	Tests the cases when the integral is NaN or infinity
+	"""
+	print("Testing singular cases...")
+	result = test_NaN(executable)
+	if (result):
+		print("NaN handling: " + green("PASS"))
+	else:
+		print("NaN handling: ERROR")
+#==================================================================================================		
 def test_integrate(known_dict, executable, samples, precision):
 	"""
 	Tests the value of the integral returned by 'm3di integrate' against
@@ -100,13 +144,13 @@ def test_integrate(known_dict, executable, samples, precision):
 		print("Absolute error = %.60f > %.60f = precision"%(abs(imag_error),precision))
 		return False
 	return True
-
+#==================================================================================================
 def green(text):
 	""" 
 	Surrounds 'text' with POSIX shell green color begin and end commands
 	"""
 	return "\033[0;32m" + text + "\033[0m"
-
+#==================================================================================================
 def get_executable_path():
 	"""
 	Returns the path to the m3di executable
@@ -118,7 +162,7 @@ def get_executable_path():
 	if (which.returncode == 0):
 		return which.stdout
 	raise Exception("Error: couldn't locate 'm3di' either in $PATH or in '../src'.")
-
+#==================================================================================================
 def test_known_values(executable):
 	"""
 	Tests against known values in the array KnownIntegralValues
@@ -131,9 +175,10 @@ def test_known_values(executable):
 		for S in sample_counts:
 			result = test_integrate(K, executable, S, precision)
 			if (result):
-				print(("Test %02d:\t"%test_number) + green("PASS"))
+				print(("Test %02d:\t"%test_number) + green("PASS") +
+				       " [to within %f]"%precision)
 			test_number += 1
-
+#==================================================================================================
 def test_malformed_JSON(executable, path):
 	"""
 	Tests the behaviour of 'executable' when passed the 'path'
@@ -142,19 +187,19 @@ def test_malformed_JSON(executable, path):
 	test = subprocess.run([executable, 
 	                       'integrate',
 	                       path,
-	                       "-0.1", "0.0", "10"], # just 10 samples in case it takes too long
+	                       "-0.1", "0.0", "10"], #just 10 samples (shouldn't run anyway)
 	                       capture_output=True)
 	if (test.returncode == 0):
 		return False # retcode == 0 means error wasn't detected
 	else:
 		return True # retcode != 0 means the program correctly detected the error
-
+#==================================================================================================
 def test_malformed_input(executable):
 	"""
 	Tests against malformed JSON input
 	"""
 	malformed_count = 15 # increase when you add extra tests
-	print("Testing against malformed JSON input...")
+	print("Testing program behaviour with malformed JSON input...")
 	test_number = 1
 	for m in range(malformed_count):
 		malformed_file = "malformed%d.json"%m
@@ -162,7 +207,7 @@ def test_malformed_input(executable):
 		if (result):
 			print(("Test %02d: '%s':\t"%(test_number,malformed_file)) + green("PASS"))
 		test_number += 1
-
+#==================================================================================================
 def run_tests():
 	"""
 	Runs all tests.
@@ -170,10 +215,11 @@ def run_tests():
 	program = get_executable_path()
 	print("Testing executable at %s ..."%program)
 	test_malformed_input(program)
+	test_singular(program)
 	test_known_values(program)
-
+#==================================================================================================
 run_tests()
-
+#==================================================================================================
 #
 # Copyright (C) 2020 Rafael M. Siejakowski
 # 
