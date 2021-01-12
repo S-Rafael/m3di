@@ -81,7 +81,7 @@ int decide_thread_count(int N, int samples)
 // ================================================================================================
 int make_divisible(int n, int d)
 /*
-	Returns the smallest integer greater or equal |n| and divisible by d
+	Returns the smallest integer greater than |n| and divisible by d
 */
 {
 	if (d<0)
