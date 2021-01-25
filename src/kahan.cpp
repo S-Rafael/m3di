@@ -29,11 +29,11 @@ void KN_accumulator::operator+= (CC increment)
 	double im_tentative = im_sum + im_increment;
 	// Now, we update the compensation depending on the error of the above additions.
 	re_compensation += // update compensation depending on the relative magnitudes
-		( abs(re_sum) >= abs(re_increment) )? // sum may have swamped out the increment
+		( std::abs(re_sum) >= std::abs(re_increment) )? // sum may have swamped out the increment
 			(re_sum - re_tentative) + re_increment: //gives the increment a chance
 			(re_increment - re_tentative) + re_sum; //gives the sum a chance
 	im_compensation += // as above, but for imaginary parts
-		( abs(im_sum) >= abs(im_increment) )? 
+		( std::abs(im_sum) >= std::abs(im_increment) )?
 			(im_sum - im_tentative) + im_increment:
 			(im_increment - im_tentative) + im_sum;
 	re_sum = re_tentative;
