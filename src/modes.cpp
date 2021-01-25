@@ -45,7 +45,7 @@ program_mode decide_mode(int argc, const char** argv)
 		return MODE_USAGE;
 }
 //==========================================================================================
-int integrate_mode(int argc, const char** argv)
+int integrate_mode(const char** argv)
 /*
 	This function implements the integration mode,
 	which is the main mode of the program.
@@ -105,7 +105,7 @@ int integrate_mode(int argc, const char** argv)
 	return 0;
 }
 //==========================================================================================
-int write_mode(int argc, const char** argv)
+int write_mode(const char** argv)
 /*
 	This function implements the write mode,
 	which outputs the integrand values as JSON data.
