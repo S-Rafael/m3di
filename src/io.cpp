@@ -5,7 +5,7 @@
 #include "io.h"
 
 // ================================================================================================
-double parse_double(const char* input)
+double parse_double(const char* input) noexcept
 /*
 	A simple wrapper around std:stod.
 */
@@ -19,9 +19,15 @@ double parse_double(const char* input)
 		std::cerr << "Invalid floating point number: '" << input << "'!" << std::endl;
 		return 0.0;
 	}
+	catch (...)
+	{
+		std::cerr << "Unhandled exception when converting a floating point number: '"
+			<< input << "'!" << std::endl;
+		return 0.0;
+	}
 }
 // ================================================================================================
-int parse_int(const char* input)
+int parse_int(const char* input) noexcept
 /*
 	A simple wrapper around std::stoi.
 */
@@ -33,6 +39,12 @@ int parse_int(const char* input)
 	catch (std::invalid_argument& e)
 	{
 		std::cerr << "Invalid integer number: '" << input << "'!" << std::endl;
+		return 0;
+	}
+	catch (...)
+	{
+		std::cerr << "Unhandled exception when converting an integer: '"
+			<< input << "'!" << std::endl;
 		return 0;
 	}
 }

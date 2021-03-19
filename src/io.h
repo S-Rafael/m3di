@@ -20,8 +20,8 @@ const int thread_base = 5; // assume 1 thread per 10^(thread_base) data points
 const int reasonable_concurrency = 8; // default number of cores if unable to get exact value 
 const int overload = 4; // maximum threads per core 
 
-double parse_double(const char* input);
-int parse_int(const char* input);
+double parse_double(const char* input) noexcept;
+int parse_int(const char* input) noexcept;
 bool validate_q_and_samples(double Rehbar, int samples);
 int decide_thread_count(int N, int samples);
 int make_divisible(int n, int d);
