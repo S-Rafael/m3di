@@ -30,7 +30,7 @@
  *
  */
 
-enum program_mode {MODE_INTEGRATE, MODE_USAGE, MODE_HELP, MODE_WRITE};
+enum class program_mode {integrate, write, usage, help};
 const std::string MODE_INTEGRATE_STRING {"integrate"};
 const std::string MODE_HELP_STRING_1    {"help"};
 const std::string MODE_HELP_STRING_2    {"--help"};

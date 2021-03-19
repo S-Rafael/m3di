@@ -12,7 +12,7 @@ program_mode decide_mode(int argc, const char** argv)
 {
 	if (argc < 2) // Not enough parameters
 	{
-		return MODE_USAGE;
+		return program_mode::usage;
 	}
 	std::string mode_string(argv[1]);
 	if (mode_string == MODE_INTEGRATE_STRING)
@@ -23,9 +23,9 @@ program_mode decide_mode(int argc, const char** argv)
 		// Im(hbar)
 		// samples
 		if (argc < 4+2)
-			return MODE_USAGE;
+			return program_mode::usage;
 		else
-			return MODE_INTEGRATE;
+			return program_mode::integrate;
 	}
 	else if (mode_string == MODE_WRITE_STRING)
 	{
@@ -35,14 +35,14 @@ program_mode decide_mode(int argc, const char** argv)
 		// Im(hbar)
 		// samples
 		if (argc < 4+2)
-			return MODE_USAGE;
+			return program_mode::usage;
 		else
-			return MODE_WRITE; 
+			return program_mode::write;
 	}
 	else if (mode_string == MODE_HELP_STRING_1 || mode_string == MODE_HELP_STRING_2)
-		return MODE_HELP;
+		return program_mode::help;
 	else
-		return MODE_USAGE;
+		return program_mode::usage;
 }
 //==========================================================================================
 int integrate_mode(const char** argv)

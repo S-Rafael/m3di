@@ -37,16 +37,16 @@ int main(int argc, const char** argv)
 	int exit_code{0};
 	switch (mode)
 	{
-		case MODE_INTEGRATE:
+		case program_mode::integrate:
 			exit_code = integrate_mode(argv);
 			break;
-		case MODE_HELP:
+		case program_mode::help:
 			exit_code = display_help(argc, argv);
 			break;
-		case MODE_WRITE:
+		case program_mode::write:
 			exit_code = write_mode(argv);
 			break;
-		case MODE_USAGE:
+		case program_mode::usage:
 		default:
 			exit_code = display_usage(argc, argv);
 	}
