@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2019-2020 Rafael M. Siejakowski
+ *   Copyright (C) 2019-2021 Rafael M. Siejakowski
  *   License information at the end of the file.
  */
 #ifndef __TRANSCENDENTAL_H__
@@ -31,7 +31,7 @@ inline bool is_tiny(CC a)
 
 /*
  *
- * Copyright (C) 2019-2020 Rafael M. Siejakowski
+ * Copyright (C) 2019-2021 Rafael M. Siejakowski
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License 
