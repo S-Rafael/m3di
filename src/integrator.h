@@ -8,6 +8,7 @@
 
 #include <json/json.h>
 #include <string>
+#include <thread>
 #include "manifold.h"
 #include "io.h"
 #include "kahan.h"

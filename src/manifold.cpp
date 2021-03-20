@@ -200,8 +200,8 @@ void mani_data::precompute(std::complex<double> hbar, int samples)
 		precomputed_quads[quad] = std::make_shared<precomputed>(angles[quad], hbar, samples);
 	}
 	// Precomputation threads are now running in parallel.
-	for (int quad=0; quad<3*N; quad++)
-		precomputed_quads[quad]->finish();
+	for (auto& quad : precomputed_quads)
+		quad->finish();
 	valid_precomp = true;
 }
 // ================================================================================================

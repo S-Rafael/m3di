@@ -21,7 +21,7 @@ integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar
 	int k = M->num_cusps();
 	nesting = N-k; //N-k nested integrals;
 	num_threads = std::thread::hardware_concurrency();
-	if (num_threads > 1) //make sure the number of samples is divisible by the number of threads
+	if (num_threads > 1)
 		samples = make_divisible(sam, num_threads); // (__MK_DIV__)
 	else
 		samples = sam;
@@ -32,7 +32,7 @@ std::complex<double> integrator::compute_integral()
 /*
 	This function does the actual computation of the state integral,
 	using all of the data stored in the object as well as data stored
-	in the mani_data object, a pointer to which is stored in M.
+	in the mani_data object, a pointer to which is stored in the member M.
 */
 {
 	//Precompute factors of the integrand
@@ -40,37 +40,37 @@ std::complex<double> integrator::compute_integral()
 	std::complex<double> result {0.0};
 	if (num_threads > 1) // we use multiple threads to compute the integral
 	{
+		unsigned int samples_per_thread = samples/num_threads;
+		// Create a vector of threads:
 		std::vector<std::thread> threads(num_threads);
-		unsigned int samples_per_thread = samples/num_threads; //integer division is exact, see __MK_DIV__
-		// Allocate an array of complex numbers to store thread results
-		std::vector<std::complex<double>> thread_results(num_threads);
+		// Vector to store thread results:
+		std::vector< std::complex<double> > thread_results(num_threads);
 		for (unsigned int t = 0; t < num_threads; t++)
 		{
-			// At the top level of recursion, we split the integration
-			// domain between the threads:
+			// We split the integration domain between the threads:
 			unsigned int from = t     * samples_per_thread;
 			unsigned int to   = (t+1) * samples_per_thread;
+			// Create integration thread with output pointer t+thread_results.data()
 			threads[t] = std::thread(thread_worker, this, t + thread_results.data(), from, to);
 		}
 		// Threads are now running in parallel.
-		for (unsigned int t=0; t < num_threads; t++)
+		for (auto& th : threads)
 		{		
 			// Join the threads
-			if (threads[t].joinable()) threads[t].join();
+			if (th.joinable())
+				th.join();
 			else
-				std::cerr << "Error: something is wrong with thread #" << t << " !" << std::endl;
+				std::cerr << "Error: unable to join a thread!" << std::endl;
 		}
 		// Threads are joined, we may now read the output array
 		KN_accumulator thread_sum;
-		// Add up thread results
-		for (unsigned int t=0; t < num_threads; t++)
-			thread_sum += thread_results[t];
+		thread_sum.accumulate(thread_results);
 		result = thread_sum.total();
 	}
-	else // Single-threaded computation
+	else // Handle the special case of single-threaded computation
 	{
 		std::vector<unsigned int> empty {}; // Initial empty vector of indices
-		result = Fubini_recursion(empty, 0, samples); // integrates over the entire range
+		result = Fubini_recursion(empty, 0, samples); // Integrate over the entire range
 	}
 	return result;
 }
@@ -81,24 +81,26 @@ std::complex<double> integrator::Fubini_recursion(std::vector<unsigned int>& ini
 	Recursively computes a multidimensional Riemann sum over a cube of arbitrary dimension.
 	Indices of sample points have the form
 	(v[0], v[1], ..., v[size()-1], k, ...),
-	where v = initial_indices, and k runs from 'from' to 'to'.		
+	where v = initial_indices, and k runs from 'from' to 'to'.
+	(In general, this allows us to run over a subset of a range, as in a thread worker.)
 	If all indices are defined (there are not "dots" at the end), this is just a plain 
 	1-dimensional Riemann sum, where k plays the role of the summation index.
 	Otherwise, we use a recursive call (Fubini's theorem).
 */
 {
 	int computation_size = to-from;
-	if (computation_size < 1) return 0.0;
-	// Local accumulator to store the Riemann sum
+	if (computation_size < 1)
+		return 0.0;
 	KN_accumulator sum;
 	// Local vector to store sample point indices; only the last index will change
 	unsigned int last_index = initial_indices.size();
-	std::vector<unsigned int> indices(last_index + 1);
-	for (unsigned int i=0; i<last_index; i++)
-		indices[i] = initial_indices[i]; // Copy the initial indices.
+	// Copy initial indices
+	std::vector<unsigned int> indices = initial_indices;
+	indices.resize(last_index + 1); // make sure there's an extra item at the end
 	if (last_index + 1 == nesting)
 	/*
-		All indices will be known, so we can actually compute the Riemann sum.
+	 * We are iterating over the last index.
+	 * Since all indices will be known, we can actually compute the Riemann sum.
 	*/
 	{	// Loop while changing the last index
 		for (int k = 0; k < computation_size; k++)
@@ -126,11 +128,11 @@ void integrator::thread_worker(integrator* obj, std::complex<double>* output,
 	 unsigned int from, unsigned int to)
 /*
 	The thread worker is a static member function which will serve as thread main
-	for the integration threads. Since the threads cannot write to the stack, we
-	use an output pointer instead.
+	for the integration threads. Each thread is assigned an output pointer
+	(variable 'output') which it is allowed to write to (by design).
 */
 {
-	std::vector<unsigned int> empty {}; 
+	std::vector<unsigned int> empty {};
 	*output = obj->Fubini_recursion(empty, from, to);
 }
 // ================================================================================================

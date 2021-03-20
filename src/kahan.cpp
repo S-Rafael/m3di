@@ -5,7 +5,7 @@
 
 #include "kahan.h"
 
-// ================================================================================================
+// =============================================================================================
 void KN_accumulator::reset(void)
 /*
 	Resets the KN_accumulator to the initial state by zeroing out the
@@ -15,11 +15,23 @@ void KN_accumulator::reset(void)
 	re_sum = im_sum = 0.0;
 	re_compensation = im_compensation = 0.0;
 }
-// ------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+void KN_accumulator::accumulate(const std::vector<CC>& v)
+/*
+ * Adds in an entire vector's worth of values
+ */
+{
+	for (CC z : v)
+		operator+=(z);
+}
+// ---------------------------------------------------------------------------------------------
 void KN_accumulator::operator+= (CC increment)
 /*
 	Adds a new value to the accumulator, using a complex version
-	of the Kahan-Neumaier running compensation algorithm.
+	of the Kahan-Neumaier (KN) running compensation algorithm.
+	This means that we run two independent KN summations, one
+	for the real part, and one for the imaginary part.
+	They are interleaved which may or may not give better performance.
 */
 {
 	double re_increment = increment.real();
@@ -29,17 +41,17 @@ void KN_accumulator::operator+= (CC increment)
 	double im_tentative = im_sum + im_increment;
 	// Now, we update the compensation depending on the error of the above additions.
 	re_compensation += // update compensation depending on the relative magnitudes
-		( std::abs(re_sum) >= std::abs(re_increment) )? // sum may have swamped out the increment
+		(std::abs(re_sum) >= std::abs(re_increment))? //sum may have swamped out the increment
 			(re_sum - re_tentative) + re_increment: //gives the increment a chance
 			(re_increment - re_tentative) + re_sum; //gives the sum a chance
 	im_compensation += // as above, but for imaginary parts
-		( std::abs(im_sum) >= std::abs(im_increment) )?
+		(std::abs(im_sum) >= std::abs(im_increment))?
 			(im_sum - im_tentative) + im_increment:
 			(im_increment - im_tentative) + im_sum;
 	re_sum = re_tentative;
 	im_sum = im_tentative;
 }
-// ------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 CC KN_accumulator::total(void)
 /*
 	Returns the total accumulated value
@@ -47,7 +59,7 @@ CC KN_accumulator::total(void)
 {
 	return CC(re_sum + re_compensation, im_sum + im_compensation);
 }
-// ================================================================================================
+// =============================================================================================
 /*
  *
  * Copyright (C) 2019-2021 Rafael M. Siejakowski

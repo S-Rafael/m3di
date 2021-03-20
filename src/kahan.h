@@ -6,7 +6,7 @@
 #define __KAHAN_H__
 
 #include <complex>
-
+#include <vector>
 /*
  * class KN_accumulator
  * 
@@ -41,6 +41,7 @@ class KN_accumulator
 	~KN_accumulator() = default;
 	void reset(void);
 	void operator+= (CC increment);
+	void accumulate(const std::vector<CC>& v);
 	CC total(void);
 };
 

@@ -49,8 +49,8 @@ class precomputed
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
 
 	public:
-	precomputed(double initial_a, std::complex<double> hbar, int samples); // custom constructor
-	~precomputed() = default; // default destructor
+	precomputed(double initial_a, std::complex<double> hbar, int samples);
+	~precomputed() = default;
 	std::complex<double> get(int position) const; // retrieves the stored value at 'position'
 	void finish(); // wait for the thread to join.
 };
