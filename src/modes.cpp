@@ -57,7 +57,7 @@ int integrate_mode(const char** argv)
 	mani_data M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
-		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
+		std::cerr << "File '" << args.filepath << "' doesn't contain a valid "
 		             "manifold specification!" << std::endl;
 		return 1;
 	}
@@ -103,7 +103,7 @@ int write_mode(const char** argv)
 	mani_data M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
-		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
+		std::cerr << "File '" << args.filepath << "' doesn't contain a valid "
 		             "manifold specification!" << std::endl;
 		return 1;
 	}
