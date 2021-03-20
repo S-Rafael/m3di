@@ -56,7 +56,7 @@ To compute a state integral with `m3di`, you need two pieces of data:
   in the `census` subdirectory.
 
 * Command line parameters controlling the parameter `"hbar"` and the number of
-  sample points per dimension of integration domain.
+  sample points in each coordinate direction in the integration domain.
 
 Given a valid JSON data file `'example.json'`, a command of the form
 
@@ -142,7 +142,7 @@ Each entry of the array `"points"` is an `Object` containing the following data:
 ## Authorship and license information
 
 The program `m3di` was developed by [Rafael M. Siejakowski](https://rs-math.net) 
-and then under the GNU GPL v2 license.
+and then released under the GNU GPL v2 license.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License 
