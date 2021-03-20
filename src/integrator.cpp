@@ -19,10 +19,10 @@ integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar
 	M = std::make_shared<mani_data>(Triangulation); //Store triangulation data
 	int N = M->num_tetrahedra();
 	int k = M->num_cusps();
-	nesting = N-k; //N-k nested integrals;
+	nesting = N-k; //N-k nested integrals; currently only k=1 is supported
 	num_threads = std::thread::hardware_concurrency();
 	if (num_threads > 1)
-		samples = make_divisible(sam, num_threads); // (__MK_DIV__)
+		samples = make_divisible(sam, num_threads);
 	else
 		samples = sam;
 	step_length = 1.0/static_cast<double>(samples);
@@ -92,7 +92,6 @@ std::complex<double> integrator::Fubini_recursion(std::vector<unsigned int>& ini
 	if (computation_size < 1)
 		return 0.0;
 	KN_accumulator sum;
-	// Local vector to store sample point indices; only the last index will change
 	unsigned int last_index = initial_indices.size();
 	// Copy initial indices
 	std::vector<unsigned int> indices = initial_indices;

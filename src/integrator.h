@@ -40,12 +40,12 @@ class integrator
 	unsigned int samples; // how many sample points in each coordinate direction
 	unsigned int num_threads; // how many concurrent threads to use for the integration
 	unsigned int nesting; // dimension of the integration domain
-	std::shared_ptr<mani_data> M; // store a pointer to the mani_data object passed to the constructor
+	std::shared_ptr<mani_data> M; // pointer to the mani_data object passed to the constructor
 	std::complex<double> hbar; // the complex parameter of the meromorphic 3D-index
 	double step_length; // length of the base interval for Riemann sum
 	public:
-	integrator(mani_data& M, std::complex<double> hbar, unsigned int samples); // class constructor
-	~integrator() = default; // default destructor
+	integrator(mani_data& M, std::complex<double> hbar, unsigned int samples);
+	~integrator() = default;
 	std::complex<double> compute_integral(); // computes the value of the integrand
 	private:
 	std::complex<double> Fubini_recursion(std::vector<unsigned int>& initial_indices, 

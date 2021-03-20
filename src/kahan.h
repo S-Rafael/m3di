@@ -7,6 +7,8 @@
 
 #include <complex>
 #include <vector>
+
+using CC = std::complex<double>;
 /*
  * class KN_accumulator
  * 
@@ -19,20 +21,18 @@
  *
  * Member functions:
  * [trivial constructor and destructor],
- * reset()                          - zeroes out the internal state, thus
- *                                    clearing the object to allow reuse
- *                                    for another summation.
- * operator+=(std::complex<double>) - adds a new value to the accumulator.
- * std::complex<double> total()     - returns the total accumulated value.
+ * reset()                            - zeroes out the internal state, thus
+ *                                      clearing the object to allow reuse
+ *                                      for another summation.
+ * operator+=(CC)                     - adds a new value to the accumulator.
+ * std::complex<double> total()       - returns the total accumulated value.
+ * accumulate(const std::vector<CC>&) - adds all entries of the vector.
  *
 */
-
-using CC = std::complex<double>;
-
 class KN_accumulator
 {
 	private:
-	double re_sum {0.0}; // C+11 required for this style of class member initialization
+	double re_sum {0.0};
 	double im_sum {0.0}; 
 	double re_compensation {0.0};
 	double im_compensation {0.0};

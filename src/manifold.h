@@ -83,11 +83,12 @@ class mani_data
 	inline bool ready() const {return (valid_state && valid_precomp);}
 	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
 	/*
-		Computes the value of the integrand at the prescribed indices
-	*/
+	 *	Computes the value of the integrand at the prescribed indices
+	 *	TODO: Measure performance and optimize this loop
+	 */
 	{
 			std::complex<double> prod = 1.0;
-			// we multiply tetrahedral weigths:
+			// Assemble integrand value by multiplying tetrahedral weigths:
 			for (int j = 0; j < N; j++) // weight of tetrahedron j:
 				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(indices, 3*j  ))
 				      * precomputed_quads[3*j+1]->get(ltd_exponent(indices, 3*j+1))

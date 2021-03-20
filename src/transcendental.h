@@ -10,12 +10,12 @@
 #include <cmath>
 #include "constants.h"
 
+using CC = std::complex<double>;
 /*
 	Here we declare the key functions G_q, c used for the
 	numerical evaluation of the transcendental functions G_q(z) and c_q.
 */
 CC G_q(CC q, CC z) noexcept;
-
 CC c(CC q) noexcept;
 
 // Inline helper functions:

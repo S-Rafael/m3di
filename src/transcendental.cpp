@@ -4,17 +4,17 @@
  */
 #include "transcendental.h"
 
-// ================================================================================================
+// =============================================================================================
 //  Implementation of the functions computing G_q and c_q.
-// ================================================================================================
+// =============================================================================================
 CC G_q(CC q, CC z) noexcept
 /* 
  * This function returns G_q(z) for |q|<1.
  * It's safe to declare it as noexcept because std::complex doesn't throw exceptions.
  *
- * However, if we hit a pole, the return value may be infinity
+ * However, if we hit a pole, the return value may be infinity.
  *
- * The general computation method uses the infinite product representation of G_q(z).
+ * The computation is based on the infinite product representation of G_q(z).
  *
  * === Thoughts on performance. ===
  *
@@ -64,7 +64,7 @@ CC G_q(CC q, CC z) noexcept
 	else
 		return numerator/denominator;  // Costly complex division happens only once
 }
-// ================================================================================================
+// =============================================================================================
 CC c(CC q) noexcept
 // Returns c(q) for |q| < 1.
 {
@@ -82,7 +82,7 @@ CC c(CC q) noexcept
 	else
 		return numerator/denominator;
 }
-// ================================================================================================
+// =============================================================================================
 /*
  *
  * Copyright (C) 2019-2021 Rafael M. Siejakowski
