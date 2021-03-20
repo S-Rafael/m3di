@@ -51,15 +51,10 @@ int integrate_mode(const char** argv)
 	which is the main mode of the program.
 */
 {
-	// Parse hbar and sample count (positional command line parameters)
-	double Rehbar = parse_double(argv[3]);
-	double Imhbar = parse_double(argv[4]);
-	int samples = parse_int(argv[5]);
-	// Validate command line input
-	if (!validate_q_and_samples(Rehbar, samples)) return 1;
-	// Prepare basic data
-	std::complex<double> hbar {Rehbar, Imhbar};
-	mani_data M = mani_data(argv[2]); 
+	cmdline_data args = parse_cmdline(argv);
+	if (!args.valid)
+		return 1;
+	mani_data M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
 		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
@@ -67,18 +62,14 @@ int integrate_mode(const char** argv)
 		return 1;
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
-	integrator I(M, hbar, samples);
+	integrator I(M, args.hbar, args.samples);
 	std::complex<double> integral = I.compute_integral();
 	// ==== Format output ====
-	// Format the given hbar_value
-	std::ostringstream hbar_given;
-	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
-	// Create JSON representation of output
 	Json::Value output;
-	output["hbar_given"] = hbar_given.str();
-	output["samples"] = samples;
-	output["hbar_real_part"] = Rehbar;
-	output["hbar_imag_part"] = Imhbar;
+	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
+	output["samples"] = args.samples;
+	output["hbar_real_part"] = args.hbar.real();
+	output["hbar_imag_part"] = args.hbar.imag();
 	// Check if the returned value of the integral is infinity or NaN
 	if (integral == INFTY)
 	{
@@ -106,14 +97,10 @@ int write_mode(const char** argv)
 	which outputs the integrand values as JSON data.
 */
 {
-	// Parse hbar and sample count
-	double Rehbar = parse_double(argv[3]);
-	double Imhbar = parse_double(argv[4]);
-	int samples = parse_int(argv[5]);
-	if (!validate_q_and_samples(Rehbar, samples)) return 1;
-	// Set up basic data
-	std::complex<double> hbar {Rehbar, Imhbar};
-	mani_data M = mani_data(argv[2]); 
+	cmdline_data args = parse_cmdline(argv);
+	if (!args.valid)
+		return 1;
+	mani_data M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
 		std::cerr << "File '" << argv[2] << "' doesn't contain a valid "
@@ -121,7 +108,7 @@ int write_mode(const char** argv)
 		return 1;
 	}
 	// M is OK, we launch precomputation
-	M.precompute(hbar, samples);
+	M.precompute(args.hbar, args.samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;
@@ -129,15 +116,12 @@ int write_mode(const char** argv)
 	}
 	// Create JSON representation of output
 	Json::Value output;
-	output["samples"] = samples;
-	output["hbar_real_part"] = Rehbar;
-	output["hbar_imag_part"] = Imhbar;
+	output["samples"] = args.samples;
+	output["hbar_real_part"] = args.hbar.real();
+	output["hbar_imag_part"] = args.hbar.imag();
 	// Compute the integrand values and store them in output
-	store_integrand_values(output, M, samples);
-	// Format the given hbar_value
-	std::ostringstream hbar_given;
-	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
-	output["hbar_given"] = hbar_given.str();
+	store_integrand_values(output, M, args.samples);
+	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
 	// Output data; TODO: implement output to file instead of std::cout
 	print_json(&(std::cout), output);
 	return 0;

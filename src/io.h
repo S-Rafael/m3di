@@ -12,16 +12,26 @@
 #include <cmath>
 #include <thread> 
 #include <json/json.h>
+#include <complex>
 
 /*
  * This file declare miscellaneous I/O and data validation functions
  */
+struct cmdline_data
+{
+    std::complex<double> hbar;
+    int samples;
+    const char* filepath;
+    bool valid;
+};
 
 double parse_double(const char* input) noexcept;
 int parse_int(const char* input) noexcept;
 bool validate_q_and_samples(double Rehbar, int samples);
 int make_divisible(int n, int d);
 void print_json(Json::OStream* destination, const Json::Value& data);
+cmdline_data parse_cmdline(const char** argv);
+std::string format_complex_strings(const char* re, const char* im);
 
 #endif
 

@@ -19,6 +19,46 @@ void print_json(Json::OStream* destination, const Json::Value& data)
 	*destination << std::endl;
 }
 // =============================================================================================
+cmdline_data parse_cmdline(const char** argv)
+/*
+ * Parses the command line arguments and fills the fields in a struct cmdline_data
+ * which is returned to the caller.
+ *
+ * Arguments in argv and their conversions:
+ * [0] : executable path   --> ignored
+ * [1] : {integrate|write} --> already handled
+ * [2] : JSON file path    --> const char*
+ * [3] : Re(hbar)          --> double }
+ * [4] : Im(hbar)          --> double } --> std::complex<double>
+ * [5] : samples           --> int
+ *
+ */
+{
+	cmdline_data result;
+	double Rehbar = parse_double(argv[3]);
+	double Imhbar = parse_double(argv[4]);
+	result.hbar = std::complex<double> {Rehbar,Imhbar};
+	result.samples = parse_int(argv[5]);
+	result.filepath = argv[2];
+	result.valid = validate_q_and_samples(Rehbar, result.samples);
+	return result;
+}
+// =============================================================================================
+std::string format_complex_strings(const char* re, const char* im)
+/*
+ * Returns a string concatenating the textual representations
+ * of the real and imaginary parts of a complex number.
+ *
+ * For example, the arguments ("42", "-0.69") output std::string("42-0.69i")
+ *
+ */
+{
+	std::ostringstream formatter;
+	bool imag_nonnegative = (parse_double(im) >= 0);
+	formatter << re << (imag_nonnegative? "+":"") << im << "i";
+	return formatter.str();
+}
+// =============================================================================================
 double parse_double(const char* input) noexcept
 /*
 	A simple wrapper around std:stod.
