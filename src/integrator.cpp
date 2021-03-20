@@ -8,19 +8,20 @@
 	Implementation of member functions of the class 'integrator'
 */
 // ================================================================================================
-integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar, unsigned int sam)
+integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar,
+					   unsigned int sam)
 /*
 	Constructor of class 'integrator'.
 */
 : num_threads {1}, hbar {given_hbar}
 {
 	if (sam < 1) sam = 1; // Make sure there's at least one sample point
-	M = std::make_shared<mani_data>(Triangulation); //Store a shared pointer to triangulation data
+	M = std::make_shared<mani_data>(Triangulation); //Store triangulation data
 	int N = M->num_tetrahedra();
 	int k = M->num_cusps();
 	nesting = N-k; //N-k nested integrals;
-	num_threads = decide_thread_count(N, sam); //Decide the optimal thread count
-	if (num_threads > 1) // make sure the number of samples is divisible by the number of threads
+	num_threads = std::thread::hardware_concurrency();
+	if (num_threads > 1) //make sure the number of samples is divisible by the number of threads
 		samples = make_divisible(sam, num_threads); // (__MK_DIV__)
 	else
 		samples = sam;

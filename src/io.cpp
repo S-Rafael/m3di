@@ -69,39 +69,17 @@ bool validate_q_and_samples(double Rehbar, int samples)
 	return true;
 }
 // ================================================================================================
-int decide_thread_count(int N, int samples)
-/*    
- *    N       – number of tetrahedra
- *    samples – number of sample points per circle
- *
- *    Returns an optimal number of threads to split the calculation into,
- *    based on the constants defined in the header file
- */
-{	
-	// Get hardware concurrency
-	int concurrency = std::thread::hardware_concurrency();
-	if (concurrency < reasonable_concurrency)
-		concurrency = reasonable_concurrency;
-	// There are at most N-1 nested integrals to compute, so we
-	// need to estimate (samples)^(N-1); we divide it by 10^thread_base
-	double s = std::pow(samples, N-1) * std::pow(10, -thread_base);
-	int optimal_threads = static_cast<int>(std::ceil(s));
-	if (optimal_threads > concurrency * overload) // we don't have that many cores...
-		optimal_threads = concurrency * overload;
-	return optimal_threads;
-}
-// ================================================================================================
 int make_divisible(int n, int d)
 /*
 	Returns the smallest integer greater than |n| and divisible by d
 */
 {
-	if (d<0)
-		d = -d;
 	if (n<0)
 		n = -n;
 	if (d==0)
 		return n;
+	else if (d<0)
+		d = -d;
 	if (n==0)
 		return d;
 	return (n/d + 1)*d;
