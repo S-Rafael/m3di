@@ -3,40 +3,36 @@
  *   License information at the end of the file.
  */
 #include "manifold.h"
-
 /*
  *   Implementation of the class mani_data.
  */
-
-// ================================================================================================
+// =============================================================================================
 bool mani_data::read_json(const char* filepath, Json::Value* root)
 /*
 	Reads and parses a JSON data file, filling in the JSON structure 'root' accordingly.
-	Thus, 'root' is essentially an output pointer.
 	Returns true on success, false on error.
 */
 {
 	std::ifstream file(filepath, std::ifstream::in);
 	if (!file.good())
 	{
-		std::cerr << "Error: file '" << filepath << "' cannot be opened for reading!" << std::endl;
+		std::cerr << "Error: file '" << filepath << "' cannot be opened for reading!"
+				  << std::endl;
 		return false;
 	}
-	// File is good, we initialize the JSON parser
 	Json::CharReaderBuilder parser;
 	std::string error;
-	// We parse the data using Json::parseFromStream
 	bool success = Json::parseFromStream(parser, file, root, &error);
 	file.close();
 	if (!success)
 	{
-		std::cerr << "Error: file '" << filepath << "' is not a valid JSON document!" << std::endl;
-		std::cerr << "--- error details:" << std::endl << error << std::endl;
+		std::cerr << "Error: file '" << filepath << "' is not a valid JSON document!";
+		std::cerr << std::endl << "--- error details:" << std::endl << error << std::endl;
 		return false;
 	}
 	return true;
 }
-// ================================================================================================
+// =============================================================================================
 bool mani_data::populate(const char* json_file)
 /*
 	Populates the data members of mani_data with manifold data, based
@@ -79,8 +75,8 @@ bool mani_data::populate(const char* json_file)
 		k = (nrows-N)/2;
 		if (k>1) // For now, we generate an error if there are multiple cusps
 		{
-			std::cerr << "Error: multiple cusps are not supported by this version of the program." 
-			<< std::endl;
+			std::cerr << "Error: multiple cusps are not supported by this version of the "
+			"program." << std::endl;
 			return false;
 		}
 		else if (k<1)
@@ -96,15 +92,16 @@ bool mani_data::populate(const char* json_file)
 			{
 				std::cerr << "Error: file '" << json_file << 
 				"' does not specify the key \"L\" correctly." << std::endl
-				<< "Please make sure that the key \"L\" is an array of matrix rows (the matrix rows "
-				"themselves being arrays of integers of length "<< ncols << ")." << std::endl;
+				<< "Please make sure that the key \"L\" is an array of matrix rows (the matrix "
+				"rows themselves being arrays of integers of length "<< ncols << ")."
+				<< std::endl;
 				return false;
 			}
 		}
 	}
 	catch (Json::LogicError& exception)
 	{
-		std::cerr << "Error: file '" << json_file << "' does not specify the key \"L\" correctly." 
+		std::cerr << "Error: file '" <<json_file<< "' does not specify the key \"L\" correctly."
 		<< std::endl
 		<< "Please make sure that the key \"L\" contains an integer matrix." << std::endl;
 		return false;
@@ -156,7 +153,7 @@ bool mani_data::populate(const char* json_file)
 	{
 		std::cerr << "Error: file '" << json_file <<
 		"' does not specify the key \"a\" correctly." << std::endl
-		<< "Some of the entries could not be interpreted as floating point numbers." << std::endl
+		<< "Some of the entries could not be interpreted as floating point numbers."<< std::endl
 		<< "Detailed error description:\n\"" << exception.what() << "\"\n";
 		return false;
 	}
@@ -165,7 +162,7 @@ bool mani_data::populate(const char* json_file)
 	angles = std::move(angles_);
 	return true;
 }
-// ================================================================================================
+// =============================================================================================
 mani_data::mani_data(const char* filepath)
 /*
 	Constructor of class mani_data.
@@ -181,7 +178,7 @@ mani_data::mani_data(const char* filepath)
 	}
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
-// ================================================================================================
+// =============================================================================================
 void mani_data::precompute(std::complex<double> hbar, int samples)
 /*
 	This function precomputes the values of the individual
@@ -204,20 +201,7 @@ void mani_data::precompute(std::complex<double> hbar, int samples)
 		quad->finish();
 	valid_precomp = true;
 }
-// ================================================================================================
-int mani_data::ltd_exponent(std::vector<unsigned int>& indices, int quad)
-/*
-	Given variable indices, this function returns the sample index of the
-	product of N-1 edge vars at quad.
-	In other words, this function realizes the dot product with l(quad).
-*/
-{
-	int sum=0;
-	for (int edge=0; edge<N-1; edge++) // last edge variable omitted
-		sum += indices[edge] * LTD[(3*N*edge) + quad];
-	return sum;
-}
-// ================================================================================================
+// =============================================================================================
 /*
  *
  * Copyright (C) 2019-2021 Rafael M. Siejakowski

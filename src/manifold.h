@@ -48,37 +48,50 @@
 class mani_data
 {
 	private:
-	bool valid_state, valid_precomp; // state variables
 	int N, k; // Number of tetrahedra and cusps
-	std::vector<double> angles; //initial angle structure (in units of pi)
-	std::complex<double> cq_factor; // c(q)
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
-	std::vector<std::shared_ptr<precomputed>> precomputed_quads; // to store precomputed G_q values
-
+	std::vector<double> angles; //initial angle structure (in units of pi)
+	std::vector< std::shared_ptr<precomputed> > precomputed_quads;
+	std::complex<double> cq_factor; // c(q)
+	bool valid_state, valid_precomp; // state variables
 	// private IO member functions
 	bool read_json(const char* filepath, Json::Value* root);
 	bool populate(const char* filepath);
 
 	public:
+	// cdtors
 	mani_data(const char* filepath);
 	~mani_data() = default;
-	int ltd_exponent(std::vector<unsigned int>& indices, int quad);
+
+	inline int ltd_exponent(std::vector<unsigned int>& indices, int quad) const
+	/*
+	 *	Returns the dot product of the indices with l(quad)
+	 *  (column of the LTD matrix coresponding to the quad).
+	 */
+	{
+		int sum=0;
+		for (int edge=0; edge<N-1; edge++) // last edge variable omitted
+			sum += indices[edge] * LTD[(3*N*edge) + quad];
+		return sum;
+
+	}
 	void precompute(std::complex<double> hbar, int samples);
 	// Some inline getters:
 	inline unsigned int num_tetrahedra() const {return N;}
 	inline unsigned int num_cusps() const {return k;}
 	inline bool is_valid() const {return valid_state;}
 	inline bool ready() const {return (valid_state && valid_precomp);}
-	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) 
+	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
 	/*
 		Computes the value of the integrand at the prescribed indices
 	*/
 	{
-			std::complex<double> prod = 1.0; // we multiply tetrahedral weigths
+			std::complex<double> prod = 1.0;
+			// we multiply tetrahedral weigths:
 			for (int j = 0; j < N; j++) // weight of tetrahedron j:
 				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(indices, 3*j  ))
 				      * precomputed_quads[3*j+1]->get(ltd_exponent(indices, 3*j+1))
-				      * cq_factor // maybe this increases numerical stability?
+					  * cq_factor // maybe putting this here increases numerical stability?
 				      * precomputed_quads[3*j+2]->get(ltd_exponent(indices, 3*j+2));
 			return prod;
 	}
