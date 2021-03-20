@@ -18,10 +18,7 @@ program_mode decide_mode(int argc, const char** argv)
 	if (mode_string == MODE_INTEGRATE_STRING)
 	{
 		// for MODE_INTEGRATE, we expect 4 more positional params:
-		// infile [Json]
-		// Re(hbar)
-		// Im(hbar)
-		// samples
+		// infile, Re(hbar), Im(hbar), samples
 		if (argc < 4+2)
 			return program_mode::usage;
 		else
@@ -30,10 +27,7 @@ program_mode decide_mode(int argc, const char** argv)
 	else if (mode_string == MODE_WRITE_STRING)
 	{
 		// for MODE_WRITE, we expect 4 more positional params:
-		// infile
-		// Re(hbar)
-		// Im(hbar)
-		// samples
+		// infile, Re(hbar), Im(hbar), samples
 		if (argc < 4+2)
 			return program_mode::usage;
 		else
@@ -133,19 +127,15 @@ int display_usage(int argc, const char** argv)
  */
 {
 	using namespace std;
-	cout 
-	          << "Usage:" << endl << endl;
-	if (argc)
-		cout << argv[0];
-	else
-		cout << "m3di"; //default executable name
-        cout
-	          << " MODE PARAMETERS" << endl << endl
-	          << "Avaliable modes are:" << endl
-	          << MODE_INTEGRATE_STRING << endl
-	          << MODE_WRITE_STRING << endl
-	          << MODE_HELP_STRING_1 << endl << endl
-	          << "Type \"m3di " << MODE_HELP_STRING_1 << "\" for help." << endl;
+	string executable((argc)? argv[0]: "m3di");
+	cout << "Usage:" << endl << endl
+		 << executable << " MODE PARAMETERS" << endl << endl
+		 << "Avaliable modes are:" << endl
+		 << MODE_INTEGRATE_STRING << endl
+		 << MODE_WRITE_STRING << endl
+		 << MODE_HELP_STRING_1 << endl << endl
+		 << "Type \"" << executable << " "
+		 << MODE_HELP_STRING_1 << "\" for help." << endl;
 	return 0;
 }
 //==========================================================================================
