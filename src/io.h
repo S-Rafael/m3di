@@ -11,6 +11,7 @@
 #include <cfloat>
 #include <cmath>
 #include <thread> 
+#include <json/json.h>
 
 /*
  * This file declare miscellaneous I/O and data validation functions
@@ -20,6 +21,7 @@ double parse_double(const char* input) noexcept;
 int parse_int(const char* input) noexcept;
 bool validate_q_and_samples(double Rehbar, int samples);
 int make_divisible(int n, int d);
+void print_json(Json::OStream* destination, const Json::Value& data);
 
 #endif
 

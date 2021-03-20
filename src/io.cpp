@@ -3,8 +3,22 @@
  *   License information at the end of the file.
  */
 #include "io.h"
-
-// ================================================================================================
+// =============================================================================================
+void print_json(Json::OStream* destination, const Json::Value& data)
+{
+	if (!destination || !data)
+	{
+		std::cerr << "Error in JSON output!" << std::endl;
+		return;
+	}
+	Json::StreamWriterBuilder builder;
+	builder["indentation"] = "\t";
+	builder.settings_["precision"] = 320;
+	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+	writer->write(data, destination);
+	*destination << std::endl;
+}
+// =============================================================================================
 double parse_double(const char* input) noexcept
 /*
 	A simple wrapper around std:stod.
@@ -26,7 +40,7 @@ double parse_double(const char* input) noexcept
 		return 0.0;
 	}
 }
-// ================================================================================================
+// =============================================================================================
 int parse_int(const char* input) noexcept
 /*
 	A simple wrapper around std::stoi.
@@ -48,7 +62,7 @@ int parse_int(const char* input) noexcept
 		return 0;
 	}
 }
-//==========================================================================================
+//==============================================================================================
 bool validate_q_and_samples(double Rehbar, int samples)
 /*
 	Checks if the values of hbar and samples have been specified correctly.
@@ -68,7 +82,7 @@ bool validate_q_and_samples(double Rehbar, int samples)
 	}
 	return true;
 }
-// ================================================================================================
+// =============================================================================================
 int make_divisible(int n, int d)
 /*
 	Returns the smallest integer greater than |n| and divisible by d

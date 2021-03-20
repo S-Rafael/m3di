@@ -14,7 +14,7 @@
 #include "write.h"
 #include "io.h"
 #include "constants.h"
-
+#include <json/json.h>
 /*
  * This file declares the subroutines which serve as sub-'main'-s of 
  * several different modes of the program, such as:

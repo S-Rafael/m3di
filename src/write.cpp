@@ -13,7 +13,6 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 	in each coordinate direction of the integration domain.
 */
 {
-	std::complex<double> val; // to store integrand value
 	unsigned int d =  M.num_tetrahedra() - M.num_cusps(); // dimension of integration domain
 	double step = twopi/static_cast<double>(samples); // distance between adjacent samples
 	multi_iterator indices = multi_iterator(samples, d); // d-dimensional iterator
@@ -21,10 +20,10 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 	{
 		Json::Value pts_array;
 		std::vector<unsigned int> current_indices = indices.item();
-		val = M.get_integrand_value(current_indices);
+		std::complex<double> val = M.get_integrand_value(current_indices);
 		// compute actual coordinates of the sample point:
-		for (unsigned int i=0; i<d; i++)
-			pts_array.append(step * static_cast<double>(current_indices[i]));
+		for (auto index : current_indices)
+			pts_array.append(step * static_cast<double>(index));
 		// Fill in a Json::Value point structure
 		Json::Value point;
 		point["t"] = pts_array;

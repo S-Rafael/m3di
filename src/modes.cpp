@@ -95,13 +95,8 @@ int integrate_mode(const char** argv)
 		output["int_real_part"] = integral.real();
 		output["int_imag_part"] = integral.imag();
 	}
-	// Output data
-	Json::StreamWriterBuilder builder;
-	builder["indentation"] = "\t";
-	builder.settings_["precision"] = 320;
-	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	writer->write(output, &std::cout); // TODO: implement output to file
-	std::cout << std::endl;
+	// Output data; TODO: implement output to file instead of std::cout
+	print_json(&(std::cout), output);
 	return 0;
 }
 //==========================================================================================
@@ -142,14 +137,9 @@ int write_mode(const char** argv)
 	// Format the given hbar_value
 	std::ostringstream hbar_given;
 	hbar_given << argv[3] << (Imhbar<0.0? "":"+") << argv[4] << "i";
-	// Output data
 	output["hbar_given"] = hbar_given.str();
-	Json::StreamWriterBuilder builder;
-	builder["indentation"] = "\t";
-	builder.settings_["precision"] = 64;
-	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	writer->write(output, &std::cout); // TODO: allow output to file
-	std::cout << std::endl;
+	// Output data; TODO: implement output to file instead of std::cout
+	print_json(&(std::cout), output);
 	return 0;
 }
 //==========================================================================================
