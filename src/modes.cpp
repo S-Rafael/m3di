@@ -7,7 +7,7 @@
 //==========================================================================================
 program_mode decide_mode(int argc, const char** argv)
 /*
-	Based on argc, argv, return the mode in which the program should run in.
+	Based on argc, argv, return the mode in which the program should run.
 */
 {
 	if (argc < 2) // Not enough parameters

@@ -19,8 +19,8 @@
  * This file declares the subroutines which serve as sub-'main'-s of 
  * several different modes of the program, such as:
  *
- * integrate_mode(argc, argv),
- * write_mode(argc, argv)
+ * integrate_mode(argv),
+ * write_mode(argv)
  * and possibly others in the future.
  *
  * Additionally, we declare the function decide_mode() which
