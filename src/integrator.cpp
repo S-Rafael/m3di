@@ -16,7 +16,7 @@ integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar
 : num_threads {1}, hbar {given_hbar}
 {
 	if (sam < 1) sam = 1; // Make sure there's at least one sample point
-	M = std::make_shared<mani_data>(Triangulation); //Store triangulation data
+	M = &Triangulation; //Store a pointer to the triangulation data
 	int N = M->num_tetrahedra();
 	int k = M->num_cusps();
 	nesting = N-k; //N-k nested integrals; currently only k=1 is supported
