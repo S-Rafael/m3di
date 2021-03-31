@@ -102,7 +102,7 @@ int write_mode(const char** argv)
 		return 1;
 	}
 	// M is OK, we launch precomputation
-	M.precompute(args.hbar, args.samples);
+	M.tabulate(args.hbar, args.samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;
