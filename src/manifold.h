@@ -27,7 +27,7 @@
  * int ltd_exponent(indices, quad) - returns t*l(□), where t is the vector 'indices' and
  *                                   □ is the normal quad with the index 'quad'.
  *
- * precompute(hbar, samples)       - Precomputes the values of G_q(...) occurring as factors
+ * tabulate(hbar, samples)         - Precomputes the values of G_q(...) occurring as factors
  *                                 - of the integrand.
  *
  * unsigned int num_tetrahedra()   - returns the number of tetrahedra in the triangulation
