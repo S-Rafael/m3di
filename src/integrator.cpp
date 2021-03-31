@@ -36,7 +36,7 @@ std::complex<double> integrator::compute_integral()
 */
 {
 	//Precompute factors of the integrand
-	M->tabulate(hbar, samples);
+	M->precompute(hbar, samples);
 	std::complex<double> result {0.0};
 	if (num_threads > 1) // we use multiple threads to compute the integral
 	{

@@ -15,9 +15,7 @@ using CC = std::complex<double>;
 	Here we declare the key functions G_q, c used for the
 	numerical evaluation of the transcendental functions G_q(z) and c_q.
 */
-template<typename q_t>
-CC G_q(q_t q, CC z) noexcept;
-
+CC G_q(CC q, CC z) noexcept;
 CC c(CC q) noexcept;
 
 // Inline helper functions:
