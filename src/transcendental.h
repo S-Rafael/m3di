@@ -27,7 +27,6 @@ inline bool is_tiny(CC a)
 	// This is a lot faster than complex abs()
 	return (std::abs(a.real()) < DBL_MIN && std::abs(a.imag()) < DBL_MIN);
 }
-
 #endif
 
 /*
