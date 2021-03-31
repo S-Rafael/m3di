@@ -7,8 +7,8 @@
 /*
     Implementation of member functions of class tabulation.
 */
-// ================================================================================================
-tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples):
+// =============================================================================================
+tabulation::tabulation(double initial_a, CC hbar, int samples):
 	length {samples}, ready {false}, iteration {nullptr}
 /*
 	Constructs the object and immediately launches the precomputation.
@@ -18,27 +18,47 @@ tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples)
 		return;
 	step = twopi / static_cast<double>(length);
 	buffer.reserve(length); // allocate memory for the table of values
-	q = exp(hbar);
+	q_real = (hbar.imag() == 0.0);
+	q = exp(hbar); // q is of complex type but if q_real then we can ignore its imaginary part
 	startangle = initial_a * pi;
-	prefactor = exp(hbar * initial_a);
+	prefactor = exp(hbar * initial_a); // when q_real, prefactor is real too
 	// Everything is set up, so we can start the precomputation thread:
 	iteration = std::make_unique<std::thread>(thread_worker, this); 
 }
-// ------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void tabulation::thread_worker(tabulation* obj)
 /*
 	This is a static member function serving as the thread main
 	for the precomputation thread.
+	It tabulates the values of G_q() for a particular quad.
 */
 {
-	// Compute the values of G_q() for a particular quad
-	for (int k=0; k<obj->length; k++)
-		obj->buffer.push_back(G_q(obj->q,
-								  obj->prefactor *
-								  std::polar<double>(1.0,
-													 static_cast<double>(k) * obj->step)));
+	if (obj->q_real) // TODO: replace with compile-time logic (templates)
+	{
+		// Special case of tabulation: obj->q has imaginary part == 0
+		// and we only consider the real part of q;
+		// likewise, obj->prefactor.imag() == 0.
+		double q = obj->q.real();
+		double r = obj->prefactor.real();
+		for (int k=0; k<obj->length; k++)
+		{
+			obj->buffer.push_back(
+				G_q(q, std::polar<double>(r, static_cast<double>(k) * obj->step)));
+		}
+	}
+	else
+	{
+		// General case of complex q and complex prefactor
+		CC q = obj->q;
+		CC r = obj->prefactor;
+		for (int k=0; k<obj->length; k++)
+		{
+			obj->buffer.push_back(
+				G_q(q, r * std::polar<double>(1.0, static_cast<double>(k) * obj->step)));
+		}
+	}
 }
-// ------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 std::complex<double> tabulation::get(int position) const
 /*
 	Retrieves the precomputed value at the given position.
@@ -52,7 +72,7 @@ std::complex<double> tabulation::get(int position) const
 		position += length;
 	return buffer[position];
 }
-// ------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void tabulation::finish()
 /*
 	Waits for the precomputation thread to join before
@@ -69,7 +89,7 @@ void tabulation::finish()
 	else
 		std::cerr << "Error in a precomputation thread!" << std::endl;
 }
-// ================================================================================================
+// =============================================================================================
 /*
  *
  * Copyright (C) 2019-2021 Rafael M. Siejakowski

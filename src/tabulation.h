@@ -33,25 +33,29 @@
  *                                          block until the precomputation thread exits.
  *
  */
+using CC = std::complex<double>;
 
 class tabulation
 {
 	private:
-	std::vector< std::complex<double> > buffer; // buffer to store computed values
-	std::complex<double> prefactor; // this will store the circle radius exp(hbar * a)
-	std::complex<double> q; // the parameter q = exp(hbar)
+	std::vector<CC> buffer; // buffer to store computed values
+	CC prefactor; // this will store the circle radius exp(hbar * a)
+	CC q; // the parameter q = exp(hbar)
+
 	double startangle; // the initial angle
 	double step; // distance between consecutive sample points
+
 	int length; // number of sample points
 	bool ready; // whether the computation is done
+	bool q_real; // wheter the parameter q is real
 
-	static void thread_worker(tabulation* obj); // static member function serving as thread main
+	static void thread_worker(tabulation* obj); //static member function serving as thread main
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
 
 	public:
-	tabulation(double initial_a, std::complex<double> hbar, int samples);
+	tabulation(double initial_a, CC hbar, int samples);
 	~tabulation() = default;
-	std::complex<double> get(int position) const; // retrieves the stored value at 'position'
+	CC get(int position) const; // retrieves the stored value at 'position'
 	void finish(); // wait for the thread to join.
 };
 

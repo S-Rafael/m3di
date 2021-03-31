@@ -45,9 +45,11 @@ int integrate_mode(const char** argv)
 	which is the main mode of the program.
 */
 {
+	// Parse command line
 	cmdline_data args = parse_cmdline(argv);
 	if (!args.valid)
 		return 1;
+	// Load the JSON data file with triangulation description
 	mani_data M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
@@ -101,8 +103,8 @@ int write_mode(const char** argv)
 		             "manifold specification!" << std::endl;
 		return 1;
 	}
-	// M is OK, we launch precomputation
-	M.precompute(args.hbar, args.samples);
+	// M is OK, we launch tabulation manually
+	M.tabulate(args.hbar, args.samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;

@@ -7,7 +7,8 @@
 // =============================================================================================
 //  Implementation of the functions computing G_q and c_q.
 // =============================================================================================
-CC G_q(CC q, CC z) noexcept
+template<typename q_t>
+CC G_q(q_t q, CC z) noexcept
 /* 
  * This function returns G_q(z) for |q|<1.
  * It's safe to declare it as noexcept because std::complex doesn't throw exceptions.
@@ -57,6 +58,9 @@ CC G_q(CC q, CC z) noexcept
 	else
 		return numerator/denominator;  // Costly complex division happens only once
 }
+// Explicitly instantiate only for q_t == double and q_t == CC
+template CC G_q(double q, CC z) noexcept;
+template CC G_q(CC q, CC z) noexcept;
 // =============================================================================================
 CC c(CC q) noexcept
 // Returns c(q) for |q| < 1.
