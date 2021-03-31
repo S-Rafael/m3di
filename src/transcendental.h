@@ -18,7 +18,8 @@ using CC = std::complex<double>;
 template<typename q_t>
 CC G_q(q_t q, CC z) noexcept;
 
-CC c(CC q) noexcept;
+template<typename q_t>
+CC c(q_t q) noexcept;
 
 // Inline helper functions:
 inline CC square(CC z) {return z*z;};

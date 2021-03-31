@@ -62,7 +62,8 @@ CC G_q(q_t q, CC z) noexcept
 template CC G_q<double>(double q, CC z) noexcept;
 template CC G_q<CC>(CC q, CC z) noexcept;
 // =============================================================================================
-CC c(CC q) noexcept
+template<typename q_t>
+CC c(q_t q) noexcept
 // Returns c(q) for |q| < 1.
 {
 	CC numerator = 1.0;
@@ -79,6 +80,9 @@ CC c(CC q) noexcept
 	else
 		return numerator/denominator;
 }
+// Instantiate template for q_t in {double, CC}
+template CC c<double>(double q) noexcept;
+template CC c<CC>(CC q) noexcept;
 // =============================================================================================
 /*
  *
