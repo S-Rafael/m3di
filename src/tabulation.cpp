@@ -2,13 +2,13 @@
  *   Copyright (C) 2019-2021 Rafael M. Siejakowski
  *   License information at the end of the file.
  */
-#include "precompute.h"
+#include "tabulation.h"
 
 /*
 	Implementation of member functions of class 'precomputed'.
 */
 // ================================================================================================
-precomputed::precomputed(double initial_a, std::complex<double> hbar, int samples):
+tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples):
 	length {samples}, ready {false}, iteration {nullptr}
 /*
 	Constructs the object and immediately launches the precomputation.
@@ -26,7 +26,7 @@ precomputed::precomputed(double initial_a, std::complex<double> hbar, int sample
 	iteration = std::make_unique<std::thread>(thread_worker, this); 
 }
 // ------------------------------------------------------------------------------------------------
-void precomputed::thread_worker(precomputed* obj)
+void tabulation::thread_worker(tabulation* obj)
 /*
 	This is a static member function serving as the thread main
 	for the precomputation thread.
@@ -41,7 +41,7 @@ void precomputed::thread_worker(precomputed* obj)
 		                                          (static_cast<double>(k) * obj->step)));
 }
 // ------------------------------------------------------------------------------------------------
-std::complex<double> precomputed::get(int position) const
+std::complex<double> tabulation::get(int position) const
 /*
 	Retrieves the precomputed value at the given position.
 	There's a simple bounds check, so 'position' is essentially
@@ -55,7 +55,7 @@ std::complex<double> precomputed::get(int position) const
 	return buffer[position];
 }
 // ------------------------------------------------------------------------------------------------
-void precomputed::finish()
+void tabulation::finish()
 /*
 	Waits for the precomputation thread to join before
 	returning control to the parent thread.

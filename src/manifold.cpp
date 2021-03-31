@@ -194,7 +194,7 @@ void mani_data::precompute(std::complex<double> hbar, int samples)
 	for (int quad=0; quad<3*N; quad++)
 	{
 		// Launch precomputation for each G_q factor
-		precomputed_quads[quad] = std::make_shared<precomputed>(angles[quad], hbar, samples);
+		precomputed_quads[quad] = std::make_shared<tabulation>(angles[quad], hbar, samples);
 	}
 	// Precomputation threads are now running in parallel.
 	for (auto& quad : precomputed_quads)

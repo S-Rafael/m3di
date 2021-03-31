@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <json/json.h>
-#include "precompute.h"
+#include "tabulation.h"
 
 /*
  * class mani_data
@@ -51,7 +51,7 @@ class mani_data
 	int N, k; // Number of tetrahedra and cusps
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	std::vector<double> angles; //initial angle structure (in units of pi)
-	std::vector< std::shared_ptr<precomputed> > precomputed_quads;
+	std::vector< std::shared_ptr<tabulation> > precomputed_quads;
 	std::complex<double> cq_factor; // c(q)
 	bool valid_state, valid_precomp; // state variables
 	// private IO member functions

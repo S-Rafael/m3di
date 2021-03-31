@@ -11,12 +11,12 @@
 #include "transcendental.h"
 
 /*
- *  class precomputed
+ *  class tabulation
  *
  * This class precomputes and stores the values of the factors G_q(w) at sample points of
  * the form w = e^(alpha*hbar/pi) * z, with |z|=1.
  *
- * Each 'precomputed' object stores a single sequence of values, with z ranging over the
+ * Each tabulation object stores a single sequence of values, with z ranging over the
  * points exp(2*pi*i * k/samples) for k=0,1,...,samples-1, and where alpha and hbar are
  * fixed. The computation is launched by the class constructor, which allocates a buffer
  * storing the results. The buffer is implemented as std::vector. Thus, deallocation is 
@@ -34,7 +34,7 @@
  *
  */
 
-class precomputed
+class tabulation
 {
 	private:
 	std::complex<double> prefactor; // this will store the circle radius exp(hbar * a)
@@ -45,12 +45,12 @@ class precomputed
 	bool ready; // whether the computation is done
 	std::vector<std::complex<double>> buffer; // buffer to store computed values
 
-	static void thread_worker(precomputed* obj); // static member function serving as thread main
+	static void thread_worker(tabulation* obj); // static member function serving as thread main
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
 
 	public:
-	precomputed(double initial_a, std::complex<double> hbar, int samples);
-	~precomputed() = default;
+	tabulation(double initial_a, std::complex<double> hbar, int samples);
+	~tabulation() = default;
 	std::complex<double> get(int position) const; // retrieves the stored value at 'position'
 	void finish(); // wait for the thread to join.
 };
