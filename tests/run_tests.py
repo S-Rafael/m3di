@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-#  Copyright (C) 2020 Rafael M. Siejakowski
+#  Copyright (C) 2020-2021 Rafael M. Siejakowski
 #  License information at the end of the file.
 
 import sys
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3  and sys.version_info[1] < 5):
     raise Exception("This program requires Python 3.5 or newer.")
-import json;
-import subprocess;
+import json
+import subprocess
 
 KnownIntegralValues = [
 	{'json': "4_1.json",
@@ -65,19 +65,26 @@ def test_NaN(executable):
 		print(test.stderr)
 		return False
 	# We expect the integral value to be in the result JSON
-	output = json.loads(test.stdout)
-	if (not 'int_real_part' in output) or (not 'int_imag_part' in output):
+	try:
+		data = json.loads(test.stdout)
+		output = data['output']
+	except json.decoder.JSONDecodeError:
+		print("Error: %s printed invalid JSON:"%executable)
+		print("Returned bytes:\n---")
+		print(test.stdout)
+		return False
+	if (not 'real' in output) or (not 'imag' in output):
 		print("Error: incorrect return format of %s:"%executable)
 		print("Returned bytes:\n---")
 		print(test.stdout)
 		return False
 	# Check if returned values are exactly equal to the known ones
-	if (output['int_real_part'] == 'infinity or removable singularity' and
-	    output['int_imag_part'] == 'infinity or removable singularity'):
+	if (output['real'] == 'infinity or removable singularity' and
+	    output['imag'] == 'infinity or removable singularity'):
 		return True
 	else:
-		print("Error: NaN integral value reported as " + output['int_real_part'] + ", " 
-		      + output['int_imag_part'] + ".")
+		print("Error: NaN integral value reported as " + output['real'] + ", " 
+		      + output['imag'] + ".")
 		return False
 #==================================================================================================
 def test_singular(executable):
@@ -116,29 +123,36 @@ def test_integrate(known_dict, executable, samples, precision):
 		print("Error message:")
 		print(test.stderr)
 		return False
-	output = json.loads(test.stdout)
-	if (not 'int_real_part' in output) or (not 'int_imag_part' in output):
+	try:
+		data = json.loads(test.stdout)
+		output = data['output']
+	except json.decoder.JSONDecodeError:
+		print("Error: %s printed invalid JSON:"%executable)
+		print("Returned bytes:\n---")
+		print(test.stdout)
+		return False
+	if (not 'real' in output) or (not 'imag' in output):
 		print("Error: incorrect return format of %s:"%executable)
 		print("Returned bytes:\n---")
 		print(test.stdout)
 		return False
 	# Check if returned values are exactly equal to the known ones
-	if (output['int_real_part'] == known_dict['value_real'] and
-	    output['int_imag_part'] == known_dict['value_imag']):
+	if (output['real'] == known_dict['value_real'] and
+	    output['imag'] == known_dict['value_imag']):
 		return True
 	# otherwise, we check the numerical error
-	real_error = output['int_real_part'] - known_dict['value_real']
-	imag_error = output['int_imag_part'] - known_dict['value_imag']
+	real_error = output['real'] - known_dict['value_real']
+	imag_error = output['imag'] - known_dict['value_imag']
 	if (abs(real_error) > precision):
 		print("Failed to attain required precision with %d samples:"%samples)
-		print("Computed real_part: %.60f"%output['int_real_part'])
+		print("Computed real_part: %.60f"%output['real'])
 		print("Expected real_part: %.60f"%known_dict['value_real'])
 		print("Error in real_part: %.60f"%real_error)
 		print("Absolute error = %.60f > %.60f = precision"%(abs(real_error),precision))
 		return False
 	if (abs(imag_error) > precision):
 		print("Failed to attain required precision with %d samples:"%samples)
-		print("Computed imag_part: %.60f"%output['int_imag_part'])
+		print("Computed imag_part: %.60f"%output['imag'])
 		print("Expected imag_part: %.60f"%known_dict['value_imag'])
 		print("Error in imag_part: %.60f"%imag_error)
 		print("Absolute error = %.60f > %.60f = precision"%(abs(imag_error),precision))
