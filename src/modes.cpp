@@ -117,15 +117,18 @@ int write_mode(const char** argv)
 		return 1;
 	}
 	// Create JSON representation of output
-	Json::Value output;
-	output["samples"] = args.samples;
-	output["hbar_real_part"] = args.hbar.real();
-	output["hbar_imag_part"] = args.hbar.imag();
+	Json::Value output, input, packet;
+	input["samples"] = args.samples;
+	input["triangulation JSON"] = args.filepath;
+	input["hbar_real"] = args.hbar.real();
+	input["hbar_imag"] = args.hbar.imag();
+	input["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
 	// Compute the integrand values and store them in output
 	store_integrand_values(output, M, args.samples);
-	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
+	packet["input"] = input;
+	packet["output"] = output;
 	// Output data; TODO: implement output to file instead of std::cout
-	print_json(&(std::cout), output);
+	print_json(&(std::cout), packet);
 	return 0;
 }
 //==========================================================================================
