@@ -1,11 +1,11 @@
 # About `m3di` v1.0
 
-`m3di` is a simple program for numerically evaluating a mathematical quantity
-known as the *meromorphic 3D-index*, a topological invariant of
-3-dimensional manifolds with torus boundary. The mathematical definition of 
-the meromorphic 3D-index as a "state integral" associated to 3-dimensional 
-triangulations with angles appears
-in [this paper](https://link.springer.com/article/10.1007/s40687-018-0166-9) 
+`m3di` is a simple command line program for numerically evaluating 
+a mathematical quantity known as the *meromorphic 3D-index*, a topological 
+invariant of 3-dimensional manifolds with torus boundary. The mathematical 
+definition of the meromorphic 3D-index as a "state integral" associated to
+3-dimensional triangulations with angles appears in
+[this paper](https://link.springer.com/article/10.1007/s40687-018-0166-9) 
 by Garoufalidis-Kashaev. 
 Subsequently, `m3di` was used to produce the numerical results of
 [this paper](http://arxiv.org/).
@@ -37,7 +37,7 @@ Building `m3di` should be straightforward on most Linux distributions:
 2. Build the project:
 
    `$ make`
-3. If `make` finished without errors, install `m3di`:
+3. If `make` finished without errors, install `m3di` as root:
 
    `# make install`
 
@@ -56,7 +56,7 @@ To compute a state integral with `m3di`, you need two pieces of data:
   in the `census` subdirectory.
 
 * Command line parameters controlling the parameter `"hbar"` and the number of
-  sample points in each coordinate direction in the integration domain.
+  sample points in each coordinate direction of the integration domain.
 
 Given a valid JSON data file `'example.json'`, a command of the form
 
@@ -64,7 +64,7 @@ Given a valid JSON data file `'example.json'`, a command of the form
 
 will perform numerical integration and print its result as JSON data to stdout.
 Note that the real part `Re_hbar` of the complex parameter "hbar" must be negative.
-For example, for hbar = -0.1 and 10000 samples per dimension, the command will be
+For example, for hbar = -0.1+0i and 10000 samples per dimension, the command will be
 
 `m3di integrate example.json -0.1 0 10000`
 
@@ -91,7 +91,7 @@ You may also look at example files shipped with the program (in the `'census'` s
 The input files describe the combinatorics of an ideal triangulation
 of a 3-manifold with torus boundary.
 
-The required data are:
+The required data fields at top level are:
 
 | Key | Value type | Meaning |
 | --- | ---------- | ------- |
@@ -112,25 +112,43 @@ group of the boundary torus.
 In other words, the length of the array `"L"` should be N+2, and each of
 its elements should be an `Array` of length 3N and elements of type `Number`.
 
-### Output format
+### Output format in _integrate mode_
 
 When run in the _integrate mode_, `m3di` prints to standard output
-a valid JSON string containing the following  data:
+a valid JSON string containing three top-level objects: `input`, `output` and `statistics`.
+
+#### The `input` object
+
+The top-level object `input` essentially mirrors the user-provided input
+for bookkeeping purposes. It contains the following data:
 
 | Key | Value type | Meaning |
 | --- | ---------- | ------- |
-| `"hbar_given"` | String | Textual representation of the complex number that `m3di` understood to be the value of the parameter `'hbar'` passed to it on the command line. |
-| `"hbar_real_part"` | Number | The real part of `'hbar'` as parsed by `m3di`. |
-| `"hbar_imag_part"` | Number | The imaginary part of `'hbar'` as parsed by `m3di`. |
+| `"hbar"` | String | Textual representation of the complex number that `m3di` understood to be the value of the parameter `'hbar'` passed to it on the command line. |
+| `"hbar_real"` | Number | The real part of `'hbar'` as parsed by `m3di`. |
+| `"hbar_imag"` | Number | The imaginary part of `'hbar'` as parsed by `m3di`. |
 | `"samples"`        | Number | The number of samples per dimension as set on the command line. |
-| `"int_real_part"`  | Number | The real part of the state integral. |
-| `"int_imag_part"`  | Number | The imaginary part of the state integral. |
+| `"triangulation JSON"` | String | The path to the JSON input file as passed on the command line. |
 
-In _write mode_, the output JSON still contains the keys
-`"hbar_given"`, `"hbar_real_part"`, `"hbar_imag_part"` and `"samples"` whose
-values have the same type and meaning as in _integrate mode_.
-In addition, the data contains a key `"points"` of type `Array` with length equal to
-the value of the variable `samples` raised to the power N-1, where N comes from the input file.
+#### The `output` object
+
+The object `output` contains the result of the integration, i.e., the state integral:
+
+| Key | Value type | Meaning |
+| --- | ---------- | ------- |
+| `"real"`  | Number | The real part of the state integral. |
+| `"imag"`  | Number | The imaginary part of the state integral. |
+
+Additionally, the `statistics` object contains some information about the computation process.
+It is provided AS-IS and no guarantees about its contents are made in this version of `m3di`.
+
+### Output format in _write mode_
+
+In _write mode_, the output JSON still contains the `input` object
+whose values have the same type and meaning as in _integrate mode_.
+Unlike in _integrate mode_, the top-level object named `"output"`
+contains only a single key `"points"` of type `Array` with length equal to
+the value of `input.samples` raised to the power N-1, where N comes from the triangulation JSON file.
 Each entry of the array `"points"` is an `Object` containing the following data:
 
 | Key | Value type | Meaning |
