@@ -56,14 +56,13 @@ int integrate_mode(const char** argv)
 		return 1;
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
+	stats Statistics;
 	integrator I(M, args.hbar, args.samples);
-	std::complex<double> integral = I.compute_integral();
+	Statistics.signal(stats_signals::begin_computation);
+	std::complex<double> integral = I.compute_integral(Statistics);
+	Statistics.signal(stats_signals::finish_integration);
 	// ==== Format output ====
 	Json::Value output;
-	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
-	output["samples"] = args.samples;
-	output["hbar_real_part"] = args.hbar.real();
-	output["hbar_imag_part"] = args.hbar.imag();
 	// Check if the returned value of the integral is infinity or NaN
 	if (integral == INFTY)
 	{
@@ -80,6 +79,14 @@ int integrate_mode(const char** argv)
 		output["int_real_part"] = integral.real();
 		output["int_imag_part"] = integral.imag();
 	}
+	// Fill out remaining fields
+	Json::Value s;
+	Statistics.fill(s);
+	output["statistics"] = s;
+	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
+	output["samples"] = args.samples;
+	output["hbar_real_part"] = args.hbar.real();
+	output["hbar_imag_part"] = args.hbar.imag();
 	// Output data; TODO: implement output to file instead of std::cout
 	print_json(&(std::cout), output);
 	return 0;
@@ -102,7 +109,7 @@ int write_mode(const char** argv)
 		return 1;
 	}
 	// M is OK, we launch precomputation
-	M.precompute(args.hbar, args.samples);
+	M.tabulate(args.hbar, args.samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;

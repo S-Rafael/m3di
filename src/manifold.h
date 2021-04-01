@@ -75,7 +75,7 @@ class mani_data
 		return sum;
 
 	}
-	void precompute(std::complex<double> hbar, int samples);
+	void tabulate(std::complex<double> hbar, int samples);
 	// Some inline getters:
 	inline unsigned int num_tetrahedra() const {return N;}
 	inline unsigned int num_cusps() const {return k;}

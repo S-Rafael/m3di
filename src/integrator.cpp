@@ -28,16 +28,20 @@ integrator::integrator(mani_data& Triangulation, std::complex<double> given_hbar
 	step_length = 1.0/static_cast<double>(samples);
 }
 // ------------------------------------------------------------------------------------------------
-std::complex<double> integrator::compute_integral()
+std::complex<double> integrator::compute_integral(stats& Statistics)
 /*
 	This function does the actual computation of the state integral,
 	using all of the data stored in the object as well as data stored
-	in the mani_data object, a pointer to which is stored in the member M.
+	in the member object mani_data M.
+	Along the way, we inform the object Statistics about our progress.
 */
 {
-	//Precompute factors of the integrand
-	M->precompute(hbar, samples);
+	Statistics.set_num_threads(num_threads);
+	// Tabulate the factors of the integrand
+	M->tabulate(hbar, samples);
+	Statistics.signal(stats_signals::finish_tabulation);
 	std::complex<double> result {0.0};
+	// Prepare to compute the integral
 	if (num_threads > 1) // we use multiple threads to compute the integral
 	{
 		unsigned int samples_per_thread = samples/num_threads;

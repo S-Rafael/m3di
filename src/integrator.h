@@ -12,6 +12,7 @@
 #include "manifold.h"
 #include "io.h"
 #include "kahan.h"
+#include "stats.h"
 
 /*
  * class integrator
@@ -46,7 +47,7 @@ class integrator
 	public:
 	integrator(mani_data& M, std::complex<double> hbar, unsigned int samples);
 	~integrator() = default;
-	std::complex<double> compute_integral(); // computes the value of the integrand
+	std::complex<double> compute_integral(stats& S); // computes the value of the integrand
 	private:
 	std::complex<double> Fubini_recursion(std::vector<unsigned int>& initial_indices, 
 		unsigned int from, unsigned int to) const; // performs Riemann summation recursively

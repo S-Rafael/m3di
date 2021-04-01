@@ -13,6 +13,7 @@
 #include "integrator.h"
 #include "write.h"
 #include "io.h"
+#include "stats.h"
 #include "constants.h"
 #include <json/json.h>
 /*

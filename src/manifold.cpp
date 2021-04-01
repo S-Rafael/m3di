@@ -179,7 +179,7 @@ mani_data::mani_data(const char* filepath)
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // =============================================================================================
-void mani_data::precompute(std::complex<double> hbar, int samples)
+void mani_data::tabulate(std::complex<double> hbar, int samples)
 /*
 	This function precomputes the values of the individual
 	G_q(...) factors of the integrand. Each factor is evaluated
