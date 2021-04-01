@@ -71,7 +71,7 @@ int integrate_mode(const char** argv)
 	}
 	else if (std::isnan(integral.real()) || std::isnan(integral.imag()))
 	{
-		output["part"] = output["imag"] = "infinity or removable singularity";
+		output["real"] = output["imag"] = "infinity or removable singularity";
 	}
 	else
 	{
