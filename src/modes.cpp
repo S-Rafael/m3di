@@ -57,39 +57,39 @@ int integrate_mode(const char** argv)
 		return 1;
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
-	stats Statistics;
+	stats St; // stats object to keep track of computation time
 	integrator I(M, args.hbar, args.samples);
-	Statistics.signal(stats::messages::begin_computation);
-	std::complex<double> integral = I.compute_integral(Statistics);
-	Statistics.signal(stats::messages::finish_integration);
+	St.signal(stats::messages::begin_computation);
+	std::complex<double> integral = I.compute_integral(St);
+	St.signal(stats::messages::finish_integration);
 	// ==== Format output ====
-	Json::Value output;
+	Json::Value packet, input, output, statistics;
 	// Check if the returned value of the integral is infinity or NaN
 	if (integral == INFTY)
 	{
-		output["int_real_part"] = "infinity";
-		output["int_imag_part"] = "infinity";
+		output["real"] = output["imag"] = "infinity";
 	}
-	else if (std::isnan(integral.real()) || std::isnan(integral.imag())) 
+	else if (std::isnan(integral.real()) || std::isnan(integral.imag()))
 	{
-		output["int_real_part"] = "infinity or removable singularity";
-		output["int_imag_part"] = "infinity or removable singularity";
+		output["part"] = output["imag"] = "infinity or removable singularity";
 	}
 	else
 	{
-		output["int_real_part"] = integral.real();
-		output["int_imag_part"] = integral.imag();
+		output["real"] = integral.real();
+		output["imag"] = integral.imag();
 	}
-	// Fill out remaining fields
-	Json::Value s;
-	Statistics.fill(s);
-	output["statistics"] = s;
-	output["hbar_given"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
-	output["samples"] = args.samples;
-	output["hbar_real_part"] = args.hbar.real();
-	output["hbar_imag_part"] = args.hbar.imag();
+	// Fill out the objects 'input' and 'statistics'
+	St.fill(statistics);
+	input["hbar"] = format_complex_strings(argv[3], argv[4]); // Re(hbar), Im(hbar)
+	input["triangulation JSON"] = args.filepath;
+	input["samples"] = args.samples;
+	input["hbar_real"] = args.hbar.real();
+	input["hbar_imag"] = args.hbar.imag();
 	// Output data; TODO: implement output to file instead of std::cout
-	print_json(&(std::cout), output);
+	packet["input"] = input;
+	packet["output"] = output;
+	packet["statistics"] = statistics;
+	print_json(&(std::cout), packet);
 	return 0;
 }
 //==========================================================================================

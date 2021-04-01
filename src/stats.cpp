@@ -41,10 +41,10 @@ void stats::fill(Json::Value& v)
     interval_t integration_walltime = integration - tabulation;
     interval_t total_walltime = integration - start;
     v["threads"] = th;
-    v["setup wtime [s]"] = setup_time.count();
-    v["tabulation wtime [s]"] = tabulation_walltime.count();
-    v["integration wtime [s]"] = integration_walltime.count();
-    v["total wtime [s]"] = total_walltime.count();
+    v["setup walltime"] = setup_time.count();
+    v["tabulation walltime"] = tabulation_walltime.count();
+    v["integration walltime"] = integration_walltime.count();
+    v["total walltime [s]"] = total_walltime.count();
 }
 //==============================================================================================
 /*
