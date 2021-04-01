@@ -1,5 +1,6 @@
 /*
- *   Copyright (C) 2019-2021 Rafael M. Siejakowski
+ *   Copyright (C) 2019-2021 Rafael M. Siejakowski.
+ *   All rights reserved.
  *   License information at the end of the file.
  */
 #ifndef __CONSTANTS_H__
@@ -11,8 +12,6 @@
 /*
 	Constant definitions.
 */
-
-// Compile-time constants:
 const std::complex<double> INFTY=std::complex<double>(std::numeric_limits<double>::infinity());
 constexpr double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164;
 constexpr double twopi = 2.0*pi;

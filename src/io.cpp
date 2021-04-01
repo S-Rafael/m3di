@@ -1,5 +1,6 @@
 /*
- *   Copyright (C) 2019-2021 Rafael M. Siejakowski
+ *   Copyright (C) 2019-2021 Rafael M. Siejakowski.
+ *   All rights reserved.
  *   License information at the end of the file.
  */
 #include "io.h"
