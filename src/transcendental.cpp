@@ -64,15 +64,16 @@ template CC G_q<CC>(CC q, CC z) noexcept;
 // =============================================================================================
 template<typename q_t>
 CC c(q_t q) noexcept
-// Returns c(q) for |q| < 1.
+// Returns c_q for |q| < 1.
 {
-	CC numerator = 1.0;
-	CC denominator = 1.0;
+	const CC one {1.0};
+	CC numerator = one;
+	CC denominator = one;
 	CC q_to_n = q;
 	while (!is_tiny(q_to_n))
 	{
-		numerator *= square(1.0 - q_to_n);
-		denominator *= (1.0 - square(q_to_n));
+		numerator *= square(one - q_to_n);
+		denominator *= one - square(q_to_n);
 		q_to_n *= q;
 	}
 	if (is_tiny(denominator))
