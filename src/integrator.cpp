@@ -40,7 +40,7 @@ std::complex<double> integrator::compute_integral(stats& Statistics)
 	Statistics.set_num_threads(num_threads);
 	// Tabulate the factors of the integrand
 	M->tabulate(hbar, samples);
-	Statistics.signal(stats_signals::finish_tabulation);
+	Statistics.signal(stats::messages::finish_tabulation);
 	std::complex<double> result {0.0};
 	// Prepare to compute the integral
 	if (num_threads > 1) // we use multiple threads to compute the integral

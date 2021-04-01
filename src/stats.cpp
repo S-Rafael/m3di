@@ -14,19 +14,19 @@ stats::stats() : num_threads {1}
     tabulation = integration = begin = start;
 }
 //==============================================================================================
-void stats::signal(stats_signals s)
+void stats::signal(stats::messages s)
 // Receives and processes a signal informing about the next stage of program execution
 {
     using namespace std::chrono;
     switch (s)
     {
-        case stats_signals::begin_computation:
+        case stats::messages::begin_computation:
             begin = steady_clock::now();
             [[fallthrough]]; // We always want tabulation to be >= than begin
-        case stats_signals::finish_tabulation:
+        case stats::messages::finish_tabulation:
             tabulation = steady_clock::now();
             [[fallthrough]]; // We always want integration to be >= than tabulation
-        case stats_signals::finish_integration:
+        case stats::messages::finish_integration:
             integration = steady_clock::now();
     }
 }

@@ -59,9 +59,9 @@ int integrate_mode(const char** argv)
 	// ==== Compute the state integral of the meromorphic 3D-index ====
 	stats Statistics;
 	integrator I(M, args.hbar, args.samples);
-	Statistics.signal(stats_signals::begin_computation);
+	Statistics.signal(stats::messages::begin_computation);
 	std::complex<double> integral = I.compute_integral(Statistics);
-	Statistics.signal(stats_signals::finish_integration);
+	Statistics.signal(stats::messages::finish_integration);
 	// ==== Format output ====
 	Json::Value output;
 	// Check if the returned value of the integral is infinity or NaN

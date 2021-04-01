@@ -12,8 +12,6 @@
 using interval_t = std::chrono::duration<double>;
 using timept_t = std::chrono::time_point<std::chrono::steady_clock, interval_t>;
 
-enum class stats_signals {begin_computation, finish_tabulation, finish_integration};
-
 /*
  * class stats
  *
@@ -28,14 +26,18 @@ enum class stats_signals {begin_computation, finish_tabulation, finish_integrati
  */
 class stats
 {
-    private:
-        timept_t start, begin, tabulation, integration;
-        int num_threads;
     public:
-        stats();
-        inline void set_num_threads(int n) {num_threads=n;}
-        void signal(stats_signals s);
-        void fill(Json::Value& v);
+    enum class messages {begin_computation, finish_tabulation, finish_integration};
+
+    private:
+    timept_t start, begin, tabulation, integration;
+    int num_threads;
+
+    public:
+    stats();
+    inline void set_num_threads(int n) {num_threads=n;}
+    void signal(stats::messages s);
+    void fill(Json::Value& v);
 };
 
 #endif
