@@ -84,6 +84,8 @@ class mani_data
 		int sum = indices[0] * LTD[quad]; // edge == 0
 		for (int edge=1; edge<N-1; edge++) // last edge variable omitted
 			sum += indices[edge] * LTD[(num_quads*edge) + quad];
+			//TODO: Make the second factor an access to  contiguous memory block.
+			// Maybe use dot product of packed ints (SSE vector instruction)
 		return sum;
 	}
 	// -------------------------------------------------------------------------

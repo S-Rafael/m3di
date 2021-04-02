@@ -6,7 +6,7 @@
 #include "tabulation.h"
 
 /*
-	Implementation of member functions of class 'precomputed'.
+    Implementation of member functions of class 'tabulation'.
 */
 // ================================================================================================
 tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples):
@@ -22,12 +22,12 @@ tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples)
 	buffer.resize(length);
 	q = exp(hbar);
 	startangle = initial_a * pi;
-	prefactor = exp(hbar * initial_a);
+	radius = exp(hbar * initial_a);
 	// Everything is set up, so we can start the precomputation thread:
-	iteration = std::make_unique<std::thread>(thread_worker, this); 
+	iteration = std::make_unique<std::thread>(thread_main, this);
 }
 // ------------------------------------------------------------------------------------------------
-void tabulation::thread_worker(tabulation* obj)
+void tabulation::thread_main(tabulation* obj)
 /*
 	This is a static member function serving as the thread main
 	for the precomputation thread.
@@ -36,7 +36,7 @@ void tabulation::thread_worker(tabulation* obj)
 	// Compute the values of G_q() for a particular quad
 	for (int k=0; k<obj->length; k++)
 		obj->buffer[k] = G_q(obj->q, 
-		                     obj->prefactor 
+							 obj->radius
 		                     * std::polar<double>(1.0,
 		                                          obj->startangle + 
 		                                          (static_cast<double>(k) * obj->step)));

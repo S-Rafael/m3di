@@ -3,8 +3,8 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
-#ifndef __PRECOMPUTE_H__
-#define __PRECOMPUTE_H__
+#ifndef __TABULATION_H__
+#define __TABULATION_H__
 
 #include <thread>
 #include <iostream>
@@ -25,29 +25,29 @@
  * 
  * Other public member functions:
  *
- * std::complex<double> get(int position) - returns the precomputed value at the index
+ * std::complex<double> get(int position) - returns the tabulated value at the index
  *                                          given by 'position'. In other words, this value
  *                                          is G_q(e^(alpha*hbar/pi + 2*pi*i * k/samples)),
  *                                          where k=position.
  *
- * void finish()                          - finishes the precomputation. This function will
- *                                          block until the precomputation thread exits.
+ * void finish()                          - finishes the tabulation. This function will
+ *                                          block until the worker thread exits.
  *
  */
 
 class tabulation
 {
 	private:
-	std::complex<double> prefactor; // this will store the circle radius exp(hbar * a)
+	std::vector<std::complex<double>> buffer; // buffer to store computed values
+	std::complex<double> radius; // Stores the quantity exp(hbar * a)
 	std::complex<double> q; // the parameter q = exp(hbar)
 	double startangle; // the initial angle
 	double step; // distance between consecutive sample points
 	int length; // number of sample points
 	bool ready; // whether the computation is done
-	std::vector<std::complex<double>> buffer; // buffer to store computed values
-
-	static void thread_worker(tabulation* obj); // static member function serving as thread main
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
+
+	static void thread_main(tabulation* obj); // static member function serving as thread main
 
 	public:
 	tabulation(double initial_a, std::complex<double> hbar, int samples);

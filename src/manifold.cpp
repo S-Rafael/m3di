@@ -188,18 +188,19 @@ void mani_data::tabulate(std::complex<double> hbar, int samples)
 	G_q(...) factors of the integrand. Each factor is evaluated
 	on a circle with the given number of samples;
 	the radius of the circle depends on the corresponding entry of 'angles'.
+	TODO: instead of 1 thread per quad, decide thread count more intelligently.
 */
 {
 	if (!valid_state)
 		return;
 	//Compute the constant prefactor [c(q)]^N
 	prefactor = std::pow(c(exp(hbar)), N);
-	for (int quad=0; quad<3*N; quad++)
+	for (int quad=0; quad < num_quads; quad++)
 	{
-		// Launch precomputation for each G_q factor
+		// Launch tabulation for each G_q factor
 		G_q_tables[quad] = std::make_shared<tabulation>(angles[quad], hbar, samples);
 	}
-	// Precomputation threads are now running in parallel.
+	// Tabulation threads are now running in parallel.
 	for (auto& quad : G_q_tables)
 		quad->finish();
 	valid_tabulation = true;
