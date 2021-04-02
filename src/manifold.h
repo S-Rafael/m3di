@@ -49,12 +49,15 @@
 class mani_data
 {
 	private:
-	int N, k; // Number of tetrahedra and cusps
+	int N; // Number of tetrahedra
+	int num_quads; // Number of quads
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	std::vector<double> angles; //initial angle structure (in units of pi)
-	std::vector< std::shared_ptr<tabulation> > G_q_tables;
+	std::vector< std::shared_ptr<tabulation> > G_q_tables; // tabulated values of G_q
 	std::complex<double> prefactor; // [c(q)]^N
+	int k; // Number of cusps; currently always 1
 	bool valid_state, valid_tabulation; // state variables
+
 	// private IO member functions
 	bool read_json(const char* filepath, Json::Value* root);
 	bool populate(const char* filepath);
@@ -63,19 +66,7 @@ class mani_data
 	// cdtors
 	mani_data(const char* filepath);
 	~mani_data() = default;
-
-	inline int ltd_exponent(std::vector<unsigned int>& indices, int quad) const
-	/*
-	 *	Returns the dot product of the indices with l(quad)
-	 *  (column of the LTD matrix coresponding to the quad).
-	 */
-	{
-		int sum=0;
-		for (int edge=0; edge<N-1; edge++) // last edge variable omitted
-			sum += indices[edge] * LTD[(3*N*edge) + quad];
-		return sum;
-
-	}
+	// Tabulation routine
 	void tabulate(std::complex<double> hbar, int samples);
 	// Some inline getters:
 	inline unsigned int num_tetrahedra() const {return N;}
@@ -83,18 +74,27 @@ class mani_data
 	inline bool is_valid() const {return valid_state;}
 	inline bool ready() const {return (valid_state && valid_tabulation);}
 	inline std::complex<double> get_prefactor() const {return prefactor;}
+	// -------------------------------------------------------------------------
+	inline int ltd_exponent(std::vector<unsigned int>& indices, int quad) const
+	/*
+	 *	Returns the dot product of the indices with l(quad)
+	 *  (column of the LTD matrix coresponding to the quad).
+	 */
+	{
+		int sum = indices[0] * LTD[quad]; // edge == 0
+		for (int edge=1; edge<N-1; edge++) // last edge variable omitted
+			sum += indices[edge] * LTD[(num_quads*edge) + quad];
+		return sum;
+	}
+	// -------------------------------------------------------------------------
 	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
 	/*
 	 *	Computes the value of the integrand at the prescribed indices
-	 *	TODO: Measure performance and optimize this loop
 	 */
 	{
-		const int quad_count = 3*N;
 		std::complex<double> prod = G_q_tables[0]->get(ltd_exponent(indices, 0));
-		for (int quad = 1; quad < quad_count; quad++)
-		{
+		for (int quad = 1; quad < num_quads; quad++)
 			prod *= G_q_tables[quad]->get(ltd_exponent(indices, quad));
-		}
 		return prod;
 	}
 };

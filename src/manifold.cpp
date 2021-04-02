@@ -169,14 +169,16 @@ mani_data::mani_data(const char* filepath)
 	Constructor of class mani_data.
 	Takes the path of the JSON file with manifold description.
 */
-: valid_state{false}, valid_tabulation{false}
+	: N{1}, num_quads{3}, k{1}, valid_state{false}, valid_tabulation{false}
 {
 	valid_state = populate(filepath);
 	if (valid_state)
 	{
-		// Allocate the vector for shared_ptr's to precomputed factors:
-		G_q_tables.resize(3*N);
+		num_quads = 3*N;
+		// Allocate the vector for shared_ptr's to tabulations of factors:
+		G_q_tables.resize(num_quads);
 	}
+
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // =============================================================================================
