@@ -169,13 +169,13 @@ mani_data::mani_data(const char* filepath)
 	Constructor of class mani_data.
 	Takes the path of the JSON file with manifold description.
 */
-: valid_state{false}, valid_precomp{false}
+: valid_state{false}, valid_tabulation{false}
 {
 	valid_state = populate(filepath);
 	if (valid_state)
 	{
 		// Allocate the vector for shared_ptr's to precomputed factors:
-		precomputed_quads.resize(3*N);
+		G_q_tables.resize(3*N);
 	}
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
@@ -190,17 +190,17 @@ void mani_data::tabulate(std::complex<double> hbar, int samples)
 {
 	if (!valid_state)
 		return;
-	//precompute c(q)
-	cq_factor = c(exp(hbar));
+	//Compute the constant prefactor [c(q)]^N
+	prefactor = std::pow(c(exp(hbar)), N);
 	for (int quad=0; quad<3*N; quad++)
 	{
 		// Launch precomputation for each G_q factor
-		precomputed_quads[quad] = std::make_shared<tabulation>(angles[quad], hbar, samples);
+		G_q_tables[quad] = std::make_shared<tabulation>(angles[quad], hbar, samples);
 	}
 	// Precomputation threads are now running in parallel.
-	for (auto& quad : precomputed_quads)
+	for (auto& quad : G_q_tables)
 		quad->finish();
-	valid_precomp = true;
+	valid_tabulation = true;
 }
 // =============================================================================================
 /*

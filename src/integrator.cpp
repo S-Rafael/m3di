@@ -41,7 +41,7 @@ std::complex<double> integrator::compute_integral(stats& Statistics)
 	// Tabulate the factors of the integrand
 	M->tabulate(hbar, samples);
 	Statistics.signal(stats::messages::finish_tabulation);
-	std::complex<double> result {0.0};
+	std::complex<double> integral {0.0};
 	// Prepare to compute the integral
 	if (num_threads > 1) // we use multiple threads to compute the integral
 	{
@@ -70,14 +70,15 @@ std::complex<double> integrator::compute_integral(stats& Statistics)
 		// Threads are joined, we may now read the output array
 		KN_accumulator thread_sum;
 		thread_sum.accumulate(thread_results);
-		result = thread_sum.total();
+		integral = thread_sum.total();
 	}
 	else // Handle the special case of single-threaded computation
 	{
 		std::vector<unsigned int> empty {}; // Initial empty vector of indices
-		result = Fubini_recursion(empty, 0, samples); // Integrate over the entire range
+		integral = Fubini_recursion(empty, 0, samples); // Integrate over the entire range
 	}
-	return result;
+	// The result still doesn't include the constant prefactor, so we put it in now
+	return integral * M->get_prefactor();
 }
 // ------------------------------------------------------------------------------------------------
 std::complex<double> integrator::Fubini_recursion(std::vector<unsigned int>& initial_indices, 

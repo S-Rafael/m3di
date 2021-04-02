@@ -28,7 +28,7 @@
  * int ltd_exponent(indices, quad) - returns t*l(□), where t is the vector 'indices' and
  *                                   □ is the normal quad with the index 'quad'.
  *
- * precompute(hbar, samples)       - Precomputes the values of G_q(...) occurring as factors
+ * tabulate(hbar, samples)         - Precomputes the values of G_q(...) occurring as factors
  *                                 - of the integrand.
  *
  * unsigned int num_tetrahedra()   - returns the number of tetrahedra in the triangulation
@@ -52,9 +52,9 @@ class mani_data
 	int N, k; // Number of tetrahedra and cusps
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	std::vector<double> angles; //initial angle structure (in units of pi)
-	std::vector< std::shared_ptr<tabulation> > precomputed_quads;
-	std::complex<double> cq_factor; // c(q)
-	bool valid_state, valid_precomp; // state variables
+	std::vector< std::shared_ptr<tabulation> > G_q_tables;
+	std::complex<double> prefactor; // [c(q)]^N
+	bool valid_state, valid_tabulation; // state variables
 	// private IO member functions
 	bool read_json(const char* filepath, Json::Value* root);
 	bool populate(const char* filepath);
@@ -81,21 +81,21 @@ class mani_data
 	inline unsigned int num_tetrahedra() const {return N;}
 	inline unsigned int num_cusps() const {return k;}
 	inline bool is_valid() const {return valid_state;}
-	inline bool ready() const {return (valid_state && valid_precomp);}
+	inline bool ready() const {return (valid_state && valid_tabulation);}
+	inline std::complex<double> get_prefactor() const {return prefactor;}
 	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
 	/*
 	 *	Computes the value of the integrand at the prescribed indices
 	 *	TODO: Measure performance and optimize this loop
 	 */
 	{
-			std::complex<double> prod = 1.0;
-			// Assemble integrand value by multiplying tetrahedral weigths:
-			for (int j = 0; j < N; j++) // weight of tetrahedron j:
-				prod *= precomputed_quads[3*j  ]->get(ltd_exponent(indices, 3*j  ))
-				      * precomputed_quads[3*j+1]->get(ltd_exponent(indices, 3*j+1))
-					  * cq_factor // maybe putting this here increases numerical stability?
-				      * precomputed_quads[3*j+2]->get(ltd_exponent(indices, 3*j+2));
-			return prod;
+		const int quad_count = 3*N;
+		std::complex<double> prod = G_q_tables[0]->get(ltd_exponent(indices, 0));
+		for (int quad = 1; quad < quad_count; quad++)
+		{
+			prod *= G_q_tables[quad]->get(ltd_exponent(indices, quad));
+		}
+		return prod;
 	}
 };
 
