@@ -21,7 +21,7 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 	{
 		Json::Value pts_array;
 		std::vector<unsigned int> current_indices = indices.item();
-		std::complex<double> val = M.get_integrand_value(current_indices);
+		std::complex<double> val = M.get_prefactor() * M.get_integrand_value(current_indices);
 		// compute actual coordinates of the sample point:
 		for (auto index : current_indices)
 			pts_array.append(step * static_cast<double>(index));
