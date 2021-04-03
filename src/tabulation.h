@@ -47,7 +47,7 @@ class tabulation
 	bool ready; // whether the computation is done
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
 
-	static void thread_main(tabulation* obj); // static member function serving as thread main
+	static void thread_main(tabulation* obj, bool real_q);
 
 	public:
 	tabulation(double initial_a, std::complex<double> hbar, int samples);

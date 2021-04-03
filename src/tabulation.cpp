@@ -12,34 +12,62 @@
 tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples):
 	length {samples}, ready {false}, iteration {nullptr}
 /*
-	Constructs the object and immediately launches the precomputation.
+	Constructs the object and immediately launches the tabulation.
 */
 {
 	if (length < 1)
 		return;
-	//Initialize variables needed for the pre-computation
+	//Initialize variables needed for the tabulation
 	step = twopi / static_cast<double>(length);
-	buffer.resize(length);
-	q = exp(hbar);
+	buffer.reserve(length);
+	q = std::exp(hbar);
 	startangle = initial_a * pi;
-	radius = exp(hbar * initial_a);
+	radius = std::exp(hbar * initial_a);
+	bool is_real = (hbar.imag() == 0);
 	// Everything is set up, so we can start the precomputation thread:
-	iteration = std::make_unique<std::thread>(thread_main, this);
+	iteration = std::make_unique<std::thread>(thread_main, this, is_real);
 }
 // ------------------------------------------------------------------------------------------------
-void tabulation::thread_main(tabulation* obj)
+void tabulation::thread_main(tabulation* obj, bool real_q)
 /*
 	This is a static member function serving as the thread main
-	for the precomputation thread.
+	for the tabulation thread.
+	The argument real_q informs us whether the parameter hbar is real.
+	Note that when hbar is real, then q and "radius" are also real,
+	and this speeds us computations.
 */
 {
-	// Compute the values of G_q() for a particular quad
-	for (int k=0; k<obj->length; k++)
-		obj->buffer[k] = G_q(obj->q, 
-							 obj->radius
-		                     * std::polar<double>(1.0,
-		                                          obj->startangle + 
-		                                          (static_cast<double>(k) * obj->step)));
+	double alpha = obj->startangle;
+	double step = obj->step;
+	int len = obj->length;
+	if (real_q)
+	{   // Special case of real hbar, q and radius
+		double q = obj->q.real();
+		double r = obj->radius.real();
+		for (int k=0; k<len; k++)
+		{
+			obj->buffer.push_back(
+						G_q<double>(q,
+		/* z: */     std::polar<double>(r, alpha + (static_cast<double>(k) * step))
+								   )
+								 );
+		}
+	}
+	else
+	{   // General case of complex hbar; may be slower than otherwise
+		std::complex<double> q = obj->q;
+		std::complex<double> r = obj->radius;
+		for (int k=0; k<obj->length; k++)
+		{
+			obj->buffer.push_back(
+				G_q< std::complex<double> >(q,
+						r * std::polar<double>(1.0,
+							alpha + (static_cast<double>(k) * step)
+											  )
+										   )
+								 );
+		}
+	}
 }
 // ------------------------------------------------------------------------------------------------
 std::complex<double> tabulation::get(int position) const
