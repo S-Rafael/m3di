@@ -13,6 +13,8 @@
 #include <json/json.h>
 #include "tabulation.h"
 
+#define TRIM_LTD // Makes the program store only the first N-k rows of the LTD matrix
+
 /*
  * class mani_data
  * 
@@ -49,13 +51,14 @@
 class mani_data
 {
 	private:
-	int N; // Number of tetrahedra
+	int nesting; // dimension of integration domain
 	int num_quads; // Number of quads
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	std::vector<double> angles; //initial angle structure (in units of pi)
 	std::vector< std::shared_ptr<tabulation> > G_q_tables; // tabulated values of G_q
 	std::complex<double> prefactor; // [c(q)]^N
 	int k; // Number of cusps; currently always 1
+	int N; // Number of tetrahedra
 	bool valid_state, valid_tabulation; // state variables
 
 	// private IO member functions
@@ -82,10 +85,8 @@ class mani_data
 	 */
 	{
 		int sum = indices[0] * LTD[quad]; // edge == 0
-		for (int edge=1; edge<N-1; edge++) // last edge variable omitted
+		for (int edge=1; edge<nesting; edge++)
 			sum += indices[edge] * LTD[(num_quads*edge) + quad];
-			//TODO: Make the second factor an access to  contiguous memory block.
-			// Maybe use dot product of packed ints (SSE vector instruction)
 		return sum;
 	}
 	// -------------------------------------------------------------------------

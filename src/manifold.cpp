@@ -128,6 +128,10 @@ bool mani_data::populate(const char* json_file)
 		<< exception.what() << std::endl;
 		return false;
 	}
+	nesting = N-k;
+#ifdef TRIM_LTD
+	nrows = nesting; // store only the first N-k rows of the matrix
+#endif
 	// Temporarily store the entries of a and L
 	std::vector<int> LTD_(ncols * nrows);
 	std::vector<double> angles_(ncols);
