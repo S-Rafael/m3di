@@ -24,10 +24,16 @@ CC c(q_t q) noexcept;
 
 // Inline helper functions:
 inline CC square(CC z) {return z*z;};
-inline bool is_tiny(CC a)
+
+inline bool is_subnormal(CC z)
+/*
+ *  Checks whether the real and imaginary parts of z are so small that
+ *  they're "subnormal doubles", i.e., they have leading zeros in the
+ *  mantissa because we have minned out (is that a word?) the exponent.
+ *
+ */
 {
-	// This is a lot faster than complex abs()
-	return (std::abs(a.real()) < DBL_MIN && std::abs(a.imag()) < DBL_MIN);
+    return (std::abs(z.real()) < DBL_MIN && std::abs(z.imag()) < DBL_MIN);
 }
 
 #endif

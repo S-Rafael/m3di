@@ -20,41 +20,35 @@ CC G_q(q_t q, CC z) noexcept
  *
  * === Thoughts on performance. ===
  *
- * This method of computing the function G_q(z) may, at a first glance,
- * seem to be wasteful because multiplication is considerably slower than addition.
- * However, the advantage is that the terms in the infinite product are
- * themselves easier to compute than the terms of the infinite series.
- * In particular, they don't require division (which is even slower than multiplication).
- *
- * There's a total of four complex multiplications in the inner loop, so hopefully they
- * take advantage of more than one pipelined ALU because the dependencies are weak.
- * However, the code could still be sped up for real q, because the multiplications
- * by q in the main loop would require fewer 'double' multiplications.
- *
  * In an earlier version, the formulae used the floating point literal "1.0"
  * which was implicitly converted to std::complex<double> but apparently,
- * all of these "1.0"-s were treated as separate by the compiler. So now we construct
+ * these "1.0"-s were treated as separate by the compiler. So now we construct
  * a local constant object called "one". Inspection of assembly shows that this works.
  *
+ * In an optimization attempt, the loop termination condition was replaced by
+ * a check whether the variable q_to_n_over_z has real part less than the machine epsilon
+ * and the imaginary part less than DBL_MIN. The resulting code was  significantly slower
+ * than the present version, so we stick with the current check, which is really fast
+ * - checking if a double is "subnormal" can be done with a single x86-64 instruction.
  */
 {
-	if (is_tiny(z))
+	if (is_subnormal(z))
 		return INFTY; // at z=0, G_q(z) has an essential singularity.
 	const CC one {1.0};
-	CC numerator = one; // initial value 1
+	CC numerator   = one; // initial value 1
 	CC denominator = one - z;  // initial value 1-z
 	// at first, we take the terms q^n / z, q^n * z with n=1,
 	CC q_to_n_times_z = q * z; 
-	CC q_to_n_over_z = q / z; // safe as z != 0
+	CC q_to_n_over_z  = q / z; // safe as z != 0
 	// main loop runs until q_to_n_over_z is indistinguishable from 0.
-	while (!is_tiny(q_to_n_over_z))
+	while (!is_subnormal(q_to_n_over_z))
 	{
-		numerator *= one + q_to_n_over_z;
-		denominator *= one - q_to_n_times_z;
-		q_to_n_over_z *= q;
+		numerator      *= one + q_to_n_over_z;
+		denominator    *= one - q_to_n_times_z;
+		q_to_n_over_z  *= q;
 		q_to_n_times_z *= q;
 	}
-	if (is_tiny(denominator))
+	if (is_subnormal(denominator))
 		return INFTY;
 	else
 		return numerator/denominator;  // Costly complex division happens only once
@@ -68,16 +62,16 @@ CC c(q_t q) noexcept
 // Returns c_q for |q| < 1.
 {
 	const CC one {1.0};
-	CC numerator = one;
+	CC numerator   = one;
 	CC denominator = one;
-	CC q_to_n = q;
-	while (!is_tiny(q_to_n))
+	CC q_to_n      = q;
+	while (!is_subnormal(q_to_n))
 	{
-		numerator *= square(one - q_to_n);
+		numerator   *= square(one - q_to_n);
 		denominator *= one - square(q_to_n);
-		q_to_n *= q;
+		q_to_n      *= q;
 	}
-	if (is_tiny(denominator))
+	if (is_subnormal(denominator))
 		return INFTY;
 	else
 		return numerator/denominator;
