@@ -51,15 +51,15 @@
 class mani_data
 {
 	private:
-	int nesting; // dimension of integration domain
-	int num_quads; // Number of quads
+	int nesting=1; // dimension of integration domain
+	int num_quads=6; // Number of quads
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
 	std::vector<double> angles; //initial angle structure (in units of pi)
 	std::vector< std::shared_ptr<tabulation> > G_q_tables; // tabulated values of G_q
 	std::complex<double> prefactor; // [c(q)]^N
-	int k; // Number of cusps; currently always 1
-	int N; // Number of tetrahedra
-	bool valid_state, valid_tabulation; // state variables
+	int k=1; // Number of cusps; currently always 1
+	int N=2; // Number of tetrahedra
+	bool valid_state=false, valid_tabulation=false; // state variables
 
 	// private IO member functions
 	bool read_json(const char* filepath, Json::Value* root);

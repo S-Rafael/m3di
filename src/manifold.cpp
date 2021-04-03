@@ -173,7 +173,6 @@ mani_data::mani_data(const char* filepath)
 	Constructor of class mani_data.
 	Takes the path of the JSON file with manifold description.
 */
-	: N{1}, num_quads{3}, k{1}, valid_state{false}, valid_tabulation{false}
 {
 	valid_state = populate(filepath);
 	if (valid_state)
