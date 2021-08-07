@@ -41,43 +41,37 @@ std::complex<double> integrator::compute_integral(stats& Statistics)
 	// Tabulate the factors of the integrand
 	M->tabulate(hbar, samples);
 	Statistics.signal(stats::messages::finish_tabulation);
-	std::complex<double> integral {0.0};
 	// Prepare to compute the integral
-	if (num_threads > 1) // we use multiple threads to compute the integral
+	std::complex<double> integral {0.0};
+	unsigned int samples_per_thread = samples/num_threads; // divisible by design
+	std::vector<std::thread> threads(num_threads);
+	std::vector< std::complex<double> > thread_results(num_threads);
+	// We split the integration domain between the threads:
+	for (unsigned int t = 0; t < num_threads; t++)
 	{
-		unsigned int samples_per_thread = samples/num_threads;
-		// Create a vector of threads:
-		std::vector<std::thread> threads(num_threads);
-		// Vector to store thread results:
-		std::vector< std::complex<double> > thread_results(num_threads);
-		for (unsigned int t = 0; t < num_threads; t++)
-		{
-			// We split the integration domain between the threads:
-			unsigned int from = t     * samples_per_thread;
-			unsigned int to   = (t+1) * samples_per_thread;
-			// Create integration thread with output pointer t+thread_results.data()
-			threads[t] = std::thread(thread_worker, this, t + thread_results.data(), from, to);
-		}
-		// Threads are now running in parallel.
-		for (auto& th : threads)
-		{		
-			// Join the threads
-			if (th.joinable())
-				th.join();
-			else
-				std::cerr << "Error: unable to join a thread!" << std::endl;
-		}
-		// Threads are joined, we may now read the output array
-		KN_accumulator thread_sum;
-		thread_sum.accumulate(thread_results);
-		integral = thread_sum.total();
+		unsigned int from = t     * samples_per_thread;
+		unsigned int to   = (t+1) * samples_per_thread;
+		// Create integration thread with output pointer
+		// set to t+thread_results.data()
+		threads[t] = std::thread(thread_worker,
+								 this,
+								 t + thread_results.data(),
+								 from,
+								 to);
 	}
-	else // Handle the special case of single-threaded computation
+	// Threads are now running in parallel.
+	for (auto& th : threads)
 	{
-		std::vector<unsigned int> empty {}; // Initial empty vector of indices
-		integral = Fubini_recursion(empty, 0, samples); // Integrate over the entire range
+		if (th.joinable())
+			th.join();
+		else
+			std::cerr << "Error: unable to join a thread!" << std::endl;
 	}
-	// The result still doesn't include the constant prefactor, so we put it in now
+	// Threads are joined, we may now read the output array
+	KN_accumulator thread_sum;
+	thread_sum.accumulate(thread_results);
+	integral = thread_sum.total();
+	// The result is the integral times the constant prefactor:
 	return integral * M->get_prefactor();
 }
 // ------------------------------------------------------------------------------------------------
