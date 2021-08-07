@@ -99,10 +99,10 @@ int write_mode(const char** argv)
 	which outputs the integrand values as JSON data.
 */
 {
-	cmdline_data args = parse_cmdline(argv);
+	auto args = parse_cmdline(argv);
 	if (!args.valid)
 		return 1;
-	mani_data M = mani_data(args.filepath);
+	auto M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
 		std::cerr << "File '" << args.filepath << "' doesn't contain a valid "
