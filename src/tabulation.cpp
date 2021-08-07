@@ -34,7 +34,7 @@ void tabulation::thread_main(tabulation* obj, bool real_q)
 	for the tabulation thread.
 	The argument real_q informs us whether the parameter hbar is real.
 	Note that when hbar is real, then q and "radius" are also real,
-	and this speeds us computations.
+	and this speeds up computations.
 */
 {
 	double alpha = obj->startangle;
