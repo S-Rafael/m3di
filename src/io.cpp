@@ -140,7 +140,16 @@ int make_divisible(int n, int d)
 		return d;
 	return (n/d + 1)*d;
 }
-// ================================================================================================
+// =============================================================================================
+void cmdline_data::fill(Json::Value& json)
+{
+	json["hbar"] = hbar_textual; // Re(hbar), Im(hbar)
+	json["triangulation JSON"] = filepath;
+	json["samples"] = samples;
+	json["hbar_real"] = hbar.real();
+	json["hbar_imag"] = hbar.imag();
+}
+// =============================================================================================
 /*
  *
  * Copyright (C) 2019-2021 Rafael M. Siejakowski
@@ -161,3 +170,4 @@ int make_divisible(int n, int d)
  * 02110-1301, USA.
  *
  */
+

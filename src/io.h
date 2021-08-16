@@ -25,6 +25,8 @@ struct cmdline_data
     int samples;
     const char* filepath;
     bool valid;
+	//----------------------
+	void fill(Json::Value& json);
 };
 
 double parse_double(const char* input) noexcept;
