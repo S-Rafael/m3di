@@ -69,6 +69,8 @@ For example, for hbar = -0.1+0i and 10000 samples per dimension, the command wil
 `m3di integrate example.json -0.1 0 10000`
 
 Use the stream redirection operator (`>`) if you wish to save the output to a JSON file.
+If a single dash (`-`) is used instead of the input file name, then `m3di` reads 
+JSON data from the standard input instead.
 
 ### Write mode
 
