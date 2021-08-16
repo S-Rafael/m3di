@@ -52,8 +52,7 @@ int integrate_mode(const char** argv)
 	auto M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
-		std::cerr << "File '" << args.filepath << "' doesn't contain a valid "
-		             "manifold specification!" << std::endl;
+		std::cerr << "No valid triangulation data provided!" << std::endl;
 		return 1;
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
@@ -101,8 +100,7 @@ int write_mode(const char** argv)
 	auto M = mani_data(args.filepath);
 	if (!M.is_valid())
 	{
-		std::cerr << "File '" << args.filepath << "' doesn't contain a valid "
-		             "manifold specification!" << std::endl;
+		std::cerr << "No valid triangulation data provided!" << std::endl;
 		return 1;
 	}
 	// M is OK, we launch precomputation

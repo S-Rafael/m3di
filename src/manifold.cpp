@@ -46,7 +46,7 @@ bool mani_data::read_json(const char* path, Json::Value* root)
 	}
 }
 // =============================================================================================
-bool mani_data::populate(const char* json_file)
+bool mani_data::populate(const char* json_path)
 /*
 	Populates the data members of mani_data with manifold data, based
 	on the JSON file with specified path: 'json_file'.
@@ -54,7 +54,11 @@ bool mani_data::populate(const char* json_file)
 */
 {
 	Json::Value json_data; // Data structure to be filled
-	if (!read_json(json_file, &json_data))
+	std::string datasource_user_friendly(json_path);
+	datasource_user_friendly = (datasource_user_friendly == "-")?
+		"standard input (stdin)":
+		datasource_user_friendly = "file '" + datasource_user_friendly + "'";
+	if (!read_json(json_path, &json_data))
 		return false;
 	// Try reading in the number of tetrahedra:
 	try
@@ -63,8 +67,8 @@ bool mani_data::populate(const char* json_file)
 	}
 	catch (Json::LogicError &exception)
 	{
-		std::cerr << "Error: file '" << json_file << 
-		"' does not specify the key \"N\" correctly." << std::endl
+		std::cerr << "Error: " << datasource_user_friendly <<
+		" does not specify the key \"N\" correctly." << std::endl
 		<< "Please make sure that the key \"N\" has a positive integer value equal to the "
 		"number of tetrahedra in the triangulation." << std::endl;
 		return false;
@@ -72,8 +76,8 @@ bool mani_data::populate(const char* json_file)
 	// Validate number of tetrahedra
 	if (N<1)
 	{
-		std::cerr << "Error: file '" << json_file << "' specifies \"N\" as equal to " << N
-		<< ", which is not a valid number of tetrahedra in a triangulation." << std::endl;
+		std::cerr << "Error: " << datasource_user_friendly << " specifies \"N\" as equal to "
+		<< N << ", which is not a valid number of tetrahedra in a triangulation." << std::endl;
 		return false;
 	}
 	// Try reading in the matrix of leading-trailing deformations
@@ -103,8 +107,8 @@ bool mani_data::populate(const char* json_file)
 		{
 			if (Ltemp[i].size() != ncols) // check if the matrix is rectangular
 			{
-				std::cerr << "Error: file '" << json_file << 
-				"' does not specify the key \"L\" correctly." << std::endl
+				std::cerr << "Error: " << datasource_user_friendly <<
+				" does not specify the key \"L\" correctly." << std::endl
 				<< "Please make sure that the key \"L\" is an array of matrix rows (the matrix "
 				"rows themselves being arrays of integers of length "<< ncols << ")."
 				<< std::endl;
@@ -114,8 +118,8 @@ bool mani_data::populate(const char* json_file)
 	}
 	catch (Json::LogicError& exception)
 	{
-		std::cerr << "Error: file '" <<json_file<< "' does not specify the key \"L\" correctly."
-		<< std::endl
+		std::cerr << "Error: " << datasource_user_friendly <<
+		" does not specify the key \"L\" correctly." << std::endl
 		<< "Please make sure that the key \"L\" contains an integer matrix." << std::endl;
 		return false;
 	}
@@ -126,8 +130,8 @@ bool mani_data::populate(const char* json_file)
 		atemp = json_data["a"];
 		if (atemp.size() != ncols) // check if the vector has the correct length
 		{
-			std::cerr << "Error: file '" << json_file << 
-			"' does not specify the key \"a\" correctly." << std::endl
+			std::cerr << "Error: " << datasource_user_friendly <<
+			" does not specify the key \"a\" correctly." << std::endl
 			<< "Please make sure that the key \"a\" is an array of numbers of length "
 			<< ncols << "." << std::endl;
 			return false;
@@ -135,8 +139,8 @@ bool mani_data::populate(const char* json_file)
 	} 
 	catch (Json::LogicError& exception)
 	{
-		std::cerr << "Error: file '" << json_file <<
-		"' does not specify the key \"a\" correctly." << std::endl
+		std::cerr << "Error: " << datasource_user_friendly <<
+		" does not specify the key \"a\" correctly." << std::endl
 		<< exception.what() << std::endl;
 		return false;
 	}
@@ -155,8 +159,8 @@ bool mani_data::populate(const char* json_file)
 	}
 	catch (Json::LogicError& exception)
 	{
-		std::cerr << "Error: file '" << json_file <<
-		"' does not specify the key \"L\" correctly." << std::endl
+		std::cerr << "Error: " << datasource_user_friendly <<
+		" does not specify the key \"L\" correctly." << std::endl
 		<< "Some of the entries could not be interpreted as integers." << std::endl
 		<< "Detailed error description:\n\"" << exception.what() << "\"\n";
 		return false;
@@ -168,8 +172,8 @@ bool mani_data::populate(const char* json_file)
 	}
 	catch (Json::LogicError& exception)
 	{
-		std::cerr << "Error: file '" << json_file <<
-		"' does not specify the key \"a\" correctly." << std::endl
+		std::cerr << "Error: " << datasource_user_friendly <<
+		" does not specify the key \"a\" correctly." << std::endl
 		<< "Some of the entries could not be interpreted as floating point numbers."<< std::endl
 		<< "Detailed error description:\n\"" << exception.what() << "\"\n";
 		return false;
