@@ -8,30 +8,42 @@
  *   Implementation of the class mani_data.
  */
 // =============================================================================================
-bool mani_data::read_json(const char* filepath, Json::Value* root)
+bool mani_data::read_json(const char* path, Json::Value* root)
 /*
 	Reads and parses a JSON data file, filling in the JSON structure 'root' accordingly.
 	Returns true on success, false on error.
 */
 {
-	std::ifstream file(filepath, std::ifstream::in);
-	if (!file.good())
-	{
-		std::cerr << "Error: file '" << filepath << "' cannot be opened for reading!"
-				  << std::endl;
-		return false;
-	}
 	Json::CharReaderBuilder parser;
 	std::string error;
-	bool success = Json::parseFromStream(parser, file, root, &error);
-	file.close();
-	if (!success)
+	std::string infile(path);
+	bool success = false;
+	if (infile == "-") // Read JSON from stdin
 	{
-		std::cerr << "Error: file '" << filepath << "' is not a valid JSON document!";
+		success = Json::parseFromStream(parser, std::cin, root, &error);
+	}
+	else // Read JSON from file
+	{
+		std::ifstream file(infile, std::ifstream::in);
+		if (!file.good())
+		{
+			std::cerr << "Error: file '" << infile << "' cannot be opened for reading!"
+				  << std::endl;
+			return false;
+		}
+		success = Json::parseFromStream(parser, file, root, &error);
+		file.close();
+	}
+	if (success)
+	{
+		return true;
+	}
+	else
+	{
+		std::cerr << "Error: invalid JSON data!";
 		std::cerr << std::endl << "--- error details:" << std::endl << error << std::endl;
 		return false;
 	}
-	return true;
 }
 // =============================================================================================
 bool mani_data::populate(const char* json_file)
