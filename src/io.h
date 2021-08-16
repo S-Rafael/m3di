@@ -21,6 +21,7 @@
 struct cmdline_data
 {
     std::complex<double> hbar;
+	std::string hbar_textual;
     int samples;
     const char* filepath;
     bool valid;

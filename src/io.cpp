@@ -29,7 +29,7 @@ cmdline_data parse_cmdline(const char** argv)
  * [0] : executable path   --> ignored
  * [1] : {integrate|write} --> already handled
  * [2] : JSON file path    --> const char*
- * [3] : Re(hbar)          --> double }
+ * [3] : Re(hbar)          --> double } --> std::string (textual representation)
  * [4] : Im(hbar)          --> double } --> std::complex<double>
  * [5] : samples           --> int
  *
@@ -39,6 +39,7 @@ cmdline_data parse_cmdline(const char** argv)
 	double Rehbar = parse_double(argv[3]);
 	double Imhbar = parse_double(argv[4]);
 	result.hbar = std::complex<double> {Rehbar,Imhbar};
+	result.hbar_textual = format_complex_strings(argv[3], argv[4]);
 	result.samples = parse_int(argv[5]);
 	result.filepath = argv[2];
 	result.valid = validate_q_and_samples(Rehbar, result.samples);
