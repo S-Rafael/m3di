@@ -5,7 +5,7 @@
 
 # Set variables used by implicit make rules
 CXX = g++
-CPPFLAGS = -std=c++14 -O3 -Wall
+CPPFLAGS = -std=c++14 -O3 -msse3 -Wall
 LDFLAGS = 
 LDLIBS = -lpthread -ljsoncpp
 
