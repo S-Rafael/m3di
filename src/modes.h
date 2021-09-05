@@ -6,29 +6,21 @@
 #ifndef __MODES_H__
 #define __MODES_H__
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cmath>
-#include "manifold.h"
-#include "integrator.h"
-#include "write.h"
-#include "io.h"
-#include "stats.h"
-#include "constants.h"
-#include <json/json.h>
-/*
- * This file declares the subroutines which serve as sub-'main'-s of 
+
+/**
+ * @file
+ * This file declares the functions which serve as sub-`main`-s of
  * several different modes of the program, such as:
  *
- * integrate_mode(argv),
- * write_mode(argv)
+ * integrate_mode(),
+ * write_mode()
  * and possibly others in the future.
  *
  * Additionally, we declare the function decide_mode() which
  * tells us which mode the program should run in.
  *
- * Also, we have helper functions display_usage() and display_help().
+ * Also, we have helpers functions display_usage() and display_help().
  *
  */
 

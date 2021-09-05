@@ -7,16 +7,17 @@
 #define __TABULATION_H__
 
 #include <thread>
-#include <iostream>
 #include <vector>
+#include <complex>
+
 #include "transcendental.h"
 
-/*
- *  class tabulation
- *
+/**
+ * @class
  * This class precomputes and stores the values of the factors G_q(w) at sample points of
  * the form w = e^(alpha*hbar/pi) * z, with |z|=1.
  *
+ * @remarks
  * Each tabulation object stores a single sequence of values, with z ranging over the
  * points exp(2*pi*i * k/samples) for k=0,1,...,samples-1, and where alpha and hbar are
  * fixed. The computation is launched by the class constructor, which allocates a buffer
@@ -41,10 +42,10 @@ class tabulation
 	std::vector<std::complex<double>> buffer; // buffer to store computed values
 	std::complex<double> radius; // Stores the quantity exp(hbar * a)
 	std::complex<double> q; // the parameter q = exp(hbar)
-	double startangle; // the initial angle
+	double startangle;      // the initial angle
 	double step; // distance between consecutive sample points
-	int length; // number of sample points
-	bool ready; // whether the computation is done
+	int length;  // number of sample points
+	bool ready;  // whether the computation is done
 	std::unique_ptr<std::thread> iteration; // unique pointer to the thread object
 
 	static void thread_main(tabulation* obj, bool real_q);

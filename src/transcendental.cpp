@@ -3,14 +3,13 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
 #include "transcendental.h"
 
 // =============================================================================================
 //  Implementation of the functions computing G_q and c_q.
 // =============================================================================================
-template<typename q_t>
-CC G_q(q_t q, CC z) noexcept
-/* 
+/*
  * This function returns G_q(z) for |q|<1.
  * It's safe to declare it as noexcept because std::complex doesn't throw exceptions.
  *
@@ -31,6 +30,8 @@ CC G_q(q_t q, CC z) noexcept
  * than the present version, so we stick with the current check, which is really fast
  * - checking if a double is "subnormal" can be done with a single x86-64 instruction.
  */
+template<typename q_t>
+CC G_q(q_t q, CC z) noexcept
 {
 	if (is_subnormal(z))
 		return INFTY; // at z=0, G_q(z) has an essential singularity.

@@ -3,13 +3,27 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include "manifold.h"
+#include "integrator.h"
+#include "write.h"
+#include "io.h"
+#include "stats.h"
+#include "constants.h"
+#include <json/json.h>
+
 #include "modes.h"
 
 //==========================================================================================
-program_mode decide_mode(int argc, const char** argv)
-/*
-	Based on argc, argv, return the mode in which the program should run.
+/**
+ * @brief
+ * Based on argc, argv, return the mode in which the program should run
 */
+program_mode decide_mode(int argc, const char** argv)
 {
 	if (argc < 2) // Not enough parameters
 	{
@@ -40,16 +54,17 @@ program_mode decide_mode(int argc, const char** argv)
 		return program_mode::usage;
 }
 //==========================================================================================
+/**
+ * @brief
+ * Implements the integration mode, which is the main mode of the program.
+ */
 int integrate_mode(const char** argv)
-/*
-	This function implements the integration mode,
-	which is the main mode of the program.
-*/
 {
-	auto args = parse_cmdline(argv);
-	if (!args.valid)
+	// Get command line parameters:
+	auto cmdline = args(argv);
+	if (!cmdline.valid)
 		return 1;
-	auto M = mani_data(args.filepath);
+	auto M = mani_data(cmdline.filepath);
 	if (!M.is_valid())
 	{
 		std::cerr << "No valid triangulation data provided!" << std::endl;
@@ -57,7 +72,7 @@ int integrate_mode(const char** argv)
 	}
 	// ==== Compute the state integral of the meromorphic 3D-index ====
 	stats St; // stats object to keep track of computation time
-	integrator I(M, args.hbar, args.samples);
+	integrator I(M, cmdline.hbar, cmdline.samples);
 	St.signal(stats::messages::begin_computation);
 	auto integral = I.compute_integral(St);
 	St.signal(stats::messages::finish_integration);
@@ -78,9 +93,10 @@ int integrate_mode(const char** argv)
 		output["imag"] = integral.imag();
 	}
 	// Fill out the objects 'input' and 'statistics'
-	args.fill(input);
+	cmdline.fill(input);
 	St.fill(statistics);
-	// Output data; TODO: implement output to file instead of std::cout
+	// Output data.
+	// TODO: implement output to file instead of std::cout
 	packet["input"] = input;
 	packet["output"] = output;
 	packet["statistics"] = statistics;
@@ -88,23 +104,23 @@ int integrate_mode(const char** argv)
 	return 0;
 }
 //==========================================================================================
+/**
+ * @brief
+ * Implements the write mode, which outputs the integrand values as JSON data
+ */
 int write_mode(const char** argv)
-/*
-	This function implements the write mode,
-	which outputs the integrand values as JSON data.
-*/
 {
-	auto args = parse_cmdline(argv);
-	if (!args.valid)
+	auto cmdline = args(argv);
+	if (!cmdline.valid)
 		return 1;
-	auto M = mani_data(args.filepath);
+	auto M = mani_data(cmdline.filepath);
 	if (!M.is_valid())
 	{
 		std::cerr << "No valid triangulation data provided!" << std::endl;
 		return 1;
 	}
 	// M is OK, we launch precomputation
-	M.tabulate(args.hbar, args.samples);
+	M.tabulate(cmdline.hbar, cmdline.samples);
 	if (!M.ready())
 	{
 		std::cerr << "Error while computing integrand values." << std::endl;
@@ -112,9 +128,9 @@ int write_mode(const char** argv)
 	}
 	// Create JSON representation of output
 	Json::Value output, input, packet;
-	args.fill(input);
+	cmdline.fill(input);
 	// Compute the integrand values and store them in output
-	store_integrand_values(output, M, args.samples);
+	store_integrand_values(output, M, cmdline.samples);
 	packet["input"] = input;
 	packet["output"] = output;
 	// Output data; TODO: implement output to file instead of std::cout
@@ -122,10 +138,12 @@ int write_mode(const char** argv)
 	return 0;
 }
 //==========================================================================================
-int display_usage(int argc, const char** argv)
-/*
-	Outputs to stdout a brief message about the usage of the tool.
+/**
+ * @brief
+ * Prints a brief message about the usage of the program to stdout
+ * @return Always returns zero
  */
+int display_usage(int argc, const char** argv)
 {
 	using namespace std;
 	string executable((argc)? argv[0]: "m3di");
@@ -140,6 +158,11 @@ int display_usage(int argc, const char** argv)
 	return 0;
 }
 //==========================================================================================
+/**
+ * @brief
+ * Prints the help string to stdout
+ * @return Always returns zero
+ */
 int display_help(int argc, const char** argv)
 {
 	std::string executable((argc)? argv[0]: "m3di");

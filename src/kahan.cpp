@@ -4,36 +4,43 @@
  *   License information at the end of the file.
  */
 
+#include <complex>
+#include <vector>
+
 #include "kahan.h"
 
+/**
+ * @file Implementation of the KN_accumulator class
+ */
+
 // =============================================================================================
-void KN_accumulator::reset(void)
-/*
-	Resets the KN_accumulator to the initial state by zeroing out the
-	accumulated value and the running compensation.
+/**
+ * @brief
+ * Resets the KN_accumulator to the initial state.
 */
+void KN_accumulator::reset(void)
 {
 	re_sum = im_sum = 0.0;
 	re_compensation = im_compensation = 0.0;
 }
 // ---------------------------------------------------------------------------------------------
-void KN_accumulator::accumulate(const std::vector<CC>& v)
-/*
+/**
+ * @brief
  * Adds in an entire vector's worth of values
  */
+void KN_accumulator::accumulate(const std::vector<CC>& v)
+
 {
 	for (CC z : v)
 		operator+=(z);
 }
 // ---------------------------------------------------------------------------------------------
-void KN_accumulator::operator+= (CC increment)
-/*
-	Adds a new value to the accumulator, using a complex version
-	of the Kahan-Neumaier (KN) running compensation algorithm.
-	This means that we run two independent KN summations, one
-	for the real part, and one for the imaginary part.
-	They are interleaved which may or may not give better performance.
+/**
+ * @brief
+ * Adds a new value to the accumulator, using a complex version
+ * of the Kahan-Neumaier (KN) running compensation algorithm.
 */
+void KN_accumulator::operator+= (CC increment)
 {
 	double re_increment = increment.real();
 	double im_increment = increment.imag();
@@ -42,9 +49,9 @@ void KN_accumulator::operator+= (CC increment)
 	double im_tentative = im_sum + im_increment;
 	// Now, we update the compensation depending on the error of the above additions.
 	re_compensation += // update compensation depending on the relative magnitudes
-		(std::abs(re_sum) >= std::abs(re_increment))? //sum may have swamped out the increment
-			(re_sum - re_tentative) + re_increment: //gives the increment a chance
-			(re_increment - re_tentative) + re_sum; //gives the sum a chance
+		(std::abs(re_sum) >= std::abs(re_increment))? // sum dominates ?
+			(re_sum - re_tentative) + re_increment: // use sum for the cancellation
+			(re_increment - re_tentative) + re_sum; // use increment for the cancellation
 	im_compensation += // as above, but for imaginary parts
 		(std::abs(im_sum) >= std::abs(im_increment))?
 			(im_sum - im_tentative) + im_increment:
@@ -53,10 +60,10 @@ void KN_accumulator::operator+= (CC increment)
 	im_sum = im_tentative;
 }
 // ---------------------------------------------------------------------------------------------
-CC KN_accumulator::total(void)
-/*
-	Returns the total accumulated value
-*/
+/**
+ * @brief Conversion operator for getting a complex number out
+ */
+KN_accumulator::operator CC(void)
 {
 	return CC(re_sum + re_compensation, im_sum + im_compensation);
 }

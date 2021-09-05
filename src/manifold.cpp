@@ -3,16 +3,27 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
+#include <fstream>
+#include <string>
+#include <iostream>
+#include <json/json.h>
+#include <complex>
+#include <vector>
+
 #include "manifold.h"
-/*
- *   Implementation of the class mani_data.
+/**
+ * @file
+ * Implementation of the class mani_data.
  */
 // =============================================================================================
+/**
+ * @brief
+ * Reads and parses a JSON data file, filling in the JSON structure 'root' accordingly.
+ * @return
+ * Returns true on success, false on error.
+ */
 bool mani_data::read_json(const char* path, Json::Value* root)
-/*
-	Reads and parses a JSON data file, filling in the JSON structure 'root' accordingly.
-	Returns true on success, false on error.
-*/
 {
 	Json::CharReaderBuilder parser;
 	std::string error;
@@ -34,24 +45,22 @@ bool mani_data::read_json(const char* path, Json::Value* root)
 		success = Json::parseFromStream(parser, file, root, &error);
 		file.close();
 	}
-	if (success)
-	{
-		return true;
-	}
-	else
+	if (!success)
 	{
 		std::cerr << "Error: invalid JSON data!";
 		std::cerr << std::endl << "--- error details:" << std::endl << error << std::endl;
-		return false;
 	}
+	return success;
 }
 // =============================================================================================
-bool mani_data::populate(const char* json_path)
-/*
-	Populates the data members of mani_data with manifold data, based
-	on the JSON file with specified path: 'json_file'.
-	Returns true on success, false on failure.
+/**
+ * @brief
+ * Populates the data members of mani_data with manifold data, based
+ * on the JSON file with specified path: `json_file`.
+ * @return
+ * Returns true on success, false on failure.
 */
+bool mani_data::populate(const char* json_path)
 {
 	Json::Value json_data; // Data structure to be filled
 	std::string datasource_user_friendly(json_path);
@@ -184,11 +193,12 @@ bool mani_data::populate(const char* json_path)
 	return true;
 }
 // =============================================================================================
-mani_data::mani_data(const char* filepath)
-/*
-	Constructor of class mani_data.
-	Takes the path of the JSON file with manifold description.
+/**
+ * @brief
+ * Constructor of class mani_data;
+ * takes the path of the JSON file with manifold description.
 */
+mani_data::mani_data(const char* filepath)
 {
 	valid_state = populate(filepath);
 	if (valid_state)
@@ -201,14 +211,12 @@ mani_data::mani_data(const char* filepath)
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // =============================================================================================
+/**
+ * @brief
+ * Tabulates the values of the individual G_q(...) factors of the integrand.
+ */
 void mani_data::tabulate(std::complex<double> hbar, int samples)
-/*
-	This function precomputes the values of the individual
-	G_q(...) factors of the integrand. Each factor is evaluated
-	on a circle with the given number of samples;
-	the radius of the circle depends on the corresponding entry of 'angles'.
-	TODO: instead of 1 thread per quad, decide thread count more intelligently.
-*/
+
 {
 	if (!valid_state)
 		return;
@@ -217,6 +225,7 @@ void mani_data::tabulate(std::complex<double> hbar, int samples)
 	for (int quad=0; quad < num_quads; quad++)
 	{
 		// Launch tabulation for each G_q factor
+		// TODO: instead of 1 thread per quad, decide thread count more intelligently.
 		G_q_tables[quad] = std::make_shared<tabulation>(angles[quad], hbar, samples);
 	}
 	// Tabulation threads are now running in parallel.

@@ -10,24 +10,17 @@
 #include <vector>
 
 using CC = std::complex<double>;
-/*
- * class KN_accumulator
- * 
+/**
+ * @class
+ * Complex number with compensated addition
+ *
+ * @remark
  * Provides an accumulator for computing sums of complex numbers of the type
  * std::complex<double>. Internally, the class uses the Kahan-Neumaier running
  * compensation algorithm to achieve the best possible numerical accuracy.
  * 
  * The Kahan-Neumaier algorithm is applied separately to real and imaginary
  * parts.
- *
- * Member functions:
- * [trivial constructor and destructor],
- * reset()                            - zeroes out the internal state, thus
- *                                      clearing the object to allow reuse
- *                                      for another summation.
- * operator+=(CC)                     - adds a new value to the accumulator.
- * std::complex<double> total()       - returns the total accumulated value.
- * accumulate(const std::vector<CC>&) - adds all entries of the vector.
  *
 */
 class KN_accumulator
@@ -43,7 +36,7 @@ class KN_accumulator
 	void reset(void);
 	void operator+= (CC increment);
 	void accumulate(const std::vector<CC>& v);
-	CC total(void);
+	operator CC();
 };
 
 #endif

@@ -14,13 +14,13 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 	in each coordinate direction of the integration domain.
 */
 {
-	unsigned int d =  M.num_tetrahedra() - M.num_cusps(); // dimension of integration domain
-	double step = twopi/static_cast<double>(samples); // distance between adjacent samples
+	unsigned d =  M.num_tetrahedra() - M.num_cusps();    // dimension of integration domain
+	double step = twopi/static_cast<double>(samples);    // distance between adjacent samples
 	multi_iterator indices = multi_iterator(samples, d); // d-dimensional iterator
 	do
 	{
 		Json::Value pts_array;
-		std::vector<unsigned int> current_indices = indices.item();
+		std::vector<unsigned> current_indices = indices.item();
 		std::complex<double> val = M.get_prefactor() * M.get_integrand_value(current_indices);
 		// compute actual coordinates of the sample point:
 		for (auto index : current_indices)
@@ -46,7 +46,7 @@ void store_integrand_values(Json::Value& target, mani_data& M, int samples)
 	Implementation of member function of class multi_iterator
 */
 // =================================================================================================
-multi_iterator::multi_iterator(unsigned int length, unsigned int depth)
+multi_iterator::multi_iterator(unsigned length, unsigned depth)
 /*
 	Class constructor
 */
@@ -59,7 +59,7 @@ bool multi_iterator::advance()
 	false if the iteration has reached its end.
 */
 {
-	unsigned int pos = 0; // currently incremented position
+	unsigned pos = 0; // currently incremented position
 	while (pos < d && buffer[pos] == len-1) // about to overflow: increase pos
 	{
 		buffer[pos] = 0;

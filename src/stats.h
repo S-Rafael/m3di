@@ -12,9 +12,11 @@
 using interval_t = std::chrono::duration<double>;
 using timept_t = std::chrono::time_point<std::chrono::steady_clock, interval_t>;
 
-/*
- * class stats
+/**
+ * @class
+ * Keeps track of the statistics of computation
  *
+ * @remark
  * The job of an object of this class is to store the durations of the two
  * steps in the computation: the tabulation phase and the integration phase.
  *
@@ -26,18 +28,18 @@ using timept_t = std::chrono::time_point<std::chrono::steady_clock, interval_t>;
  */
 class stats
 {
-    public:
-    enum class messages {begin_computation, finish_tabulation, finish_integration};
+public:
+	enum class messages {begin_computation, finish_tabulation, finish_integration};
 
-    private:
-    timept_t start, begin, tabulation, integration;
-    int num_threads;
+private:
+	timept_t start, begin, tabulation, integration;
+	int num_threads;
 
-    public:
-    stats();
-    inline void set_num_threads(int n) {num_threads=n;}
-    void signal(stats::messages s);
-    void fill(Json::Value& v);
+public:
+	stats();
+	inline void set_num_threads(int n) {num_threads=n;}
+	void signal(stats::messages s);
+	void fill(Json::Value& v);
 };
 
 #endif

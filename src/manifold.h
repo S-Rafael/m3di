@@ -5,17 +5,17 @@
  */
 #ifndef __MANIFOLD_H__
 #define __MANIFOLD_H__
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <iomanip>
+
 #include <json/json.h>
+#include <complex>
+#include <vector>
+
 #include "tabulation.h"
 
 #define TRIM_LTD // Makes the program store only the first N-k rows of the LTD matrix
 
-/*
+/**
+ * @remarks
  * class mani_data
  * 
  * This is the main class representing the necessary triangulation data and storing
@@ -48,9 +48,12 @@
  *
  */
 
+/**
+ * @brief The mani_data class stores information about a triangulated 3-manifold
+ */
 class mani_data
 {
-	private:
+private:
 	int nesting=1; // dimension of integration domain
 	int num_quads=6; // Number of quads
 	std::vector<int> LTD; // Leading-trailing matrix as a flattened vector
@@ -65,7 +68,7 @@ class mani_data
 	bool read_json(const char* filepath, Json::Value* root);
 	bool populate(const char* filepath);
 
-	public:
+public:
 	// cdtors
 	mani_data(const char* filepath);
 	~mani_data() = default;
@@ -78,11 +81,14 @@ class mani_data
 	inline bool ready() const {return (valid_state && valid_tabulation);}
 	inline std::complex<double> get_prefactor() const {return prefactor;}
 	// -------------------------------------------------------------------------
-	inline int ltd_exponent(std::vector<unsigned int>& indices, int quad) const
-	/*
-	 *	Returns the dot product of the indices with l(quad)
-	 *  (column of the LTD matrix coresponding to the quad).
+	/**
+	 * @brief Computes the dot product with l(quad)
+	 *        (column of the LTD matrix coresponding to the quad)
+	 * @param indices - the vector of indices
+	 * @param quad - index of the quad
+	 * @return dot product of indices and the column of L at index `quad`
 	 */
+	inline int ltd_exponent(std::vector<unsigned int>& indices, int quad) const
 	{
 		int sum = indices[0] * LTD[quad]; // edge == 0
 		for (int edge=1; edge<nesting; edge++)
@@ -90,10 +96,11 @@ class mani_data
 		return sum;
 	}
 	// -------------------------------------------------------------------------
-	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
-	/*
-	 *	Computes the value of the integrand at the prescribed indices
+	/**
+	 * @brief
+	 * Computes the value of the integrand at the prescribed indices
 	 */
+	inline std::complex<double> get_integrand_value(std::vector<unsigned int>& indices) const
 	{
 		std::complex<double> prod = G_q_tables[0]->get(ltd_exponent(indices, 0));
 		for (int quad = 1; quad < num_quads; quad++)

@@ -7,53 +7,40 @@
 #ifndef __INTEGRATOR_H__
 #define __INTEGRATOR_H__
 
-#include <json/json.h>
-#include <string>
-#include <thread>
+#include <complex>
+#include <vector>
+
 #include "manifold.h"
-#include "io.h"
-#include "kahan.h"
 #include "stats.h"
 
 /*
  * class integrator
  *
- * This class stores the information specific to the computation
- * of the state integral for the meromorphic 3D-index and performs this
+ * This class stores the information specific to the computation of
+ * the state integral for the meromorphic 3D-index and performs this
  * computation. Currently, only the quadrature via Riemann sums
  * ("rectangle rule") is implemented.
- *
- * Public member functions of class integrator:
- *
- * integrator(M, hbar, samples)            - class constructor. 
- *                                           Here, M is an object of mani_data type
- *                                           (see manifold.h), 
- *                                           'hbar' is the complex parameter of the state integral,
- *                                           'samples' is the number of sample points in each coordinate
- *                                           direction in the integration domain.
- * 
- * std::complex<double> compute_integral() - returns the value of the integral.
  *
  */
 
 class integrator
 {
-	private:
-	unsigned int samples; // how many sample points in each coordinate direction
-	unsigned int num_threads; // how many concurrent threads to use for the integration
-	unsigned int nesting; // dimension of the integration domain
-	mani_data* M; // non-owning pointer to the manifold data object
+private:
+	unsigned samples;          // how many sample points in each coordinate direction
+	unsigned num_threads;      // how many concurrent threads to use for the integration
+	unsigned nesting;          // dimension of the integration domain
+	mani_data* M;              // non-owning pointer to the manifold data object
 	std::complex<double> hbar; // the complex parameter of the meromorphic 3D-index
-	double step_length; // length of the base interval for Riemann sum
-	public:
-	integrator(mani_data& M, std::complex<double> hbar, unsigned int samples);
+	double step_length;        // length of the base interval for Riemann sum
+public:
+	integrator(mani_data& M, std::complex<double> hbar, unsigned samples);
 	~integrator() = default;
 	std::complex<double> compute_integral(stats& S); // computes the value of the integrand
-	private:
-	std::complex<double> Fubini_recursion(std::vector<unsigned int>& initial_indices, 
-		unsigned int from, unsigned int to) const; // performs Riemann summation recursively
-	static void thread_worker(integrator* obj, std::complex<double>* output,
-		 unsigned int from, unsigned int to); // static member function serving as thread main.
+private:
+	std::complex<double> Fubini_recursion(std::vector<unsigned>& initial_indices,
+		unsigned from, unsigned to) const; // performs Riemann summation recursively
+	static void thread_main(integrator* obj, std::complex<double>* output,
+		 unsigned from, unsigned to); // static member function serving as thread main.
 };
 
 #endif

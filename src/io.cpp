@@ -3,8 +3,22 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
+#include <iostream>
+#include <string>
+#include <cfloat>
+#include <cmath>
+#include <thread>
+#include <json/json.h>
+#include <complex>
+
 #include "io.h"
 // =============================================================================================
+/**
+ * @brief Prints formatted JSON data to the output stream
+ * @param destination - output stream to which to print data
+ * @param data - a Json::Value object containing the data
+ */
 void print_json(Json::OStream* destination, const Json::Value& data)
 {
 	if (!destination || !data)
@@ -20,40 +34,35 @@ void print_json(Json::OStream* destination, const Json::Value& data)
 	*destination << std::endl;
 }
 // =============================================================================================
-cmdline_data parse_cmdline(const char** argv)
-/*
- * Parses the command line arguments and fills the fields in a struct cmdline_data
- * which is returned to the caller.
- *
- * Arguments in argv and their conversions:
- * [0] : executable path   --> ignored
- * [1] : {integrate|write} --> already handled
- * [2] : JSON file path    --> const char*
- * [3] : Re(hbar)          --> double } --> std::string (textual representation)
- * [4] : Im(hbar)          --> double } --> std::complex<double>
- * [5] : samples           --> int
- *
+/**
+ * @brief Construct a struct `args` by parsing the command line
  */
+args::args(const char** argv)
 {
-	cmdline_data result;
+	/*
+	 * Arguments in argv and their conversions:
+	 * [0] : executable path   --> ignored
+	 * [1] : {integrate|write} --> already handled
+	 * [2] : JSON file path    --> const char*
+	 * [3] : Re(hbar)          --> double } --> std::string (textual representation)
+	 * [4] : Im(hbar)          --> double } --> std::complex<double>
+	 * [5] : samples           --> int
+	 */
 	double Rehbar = parse_double(argv[3]);
 	double Imhbar = parse_double(argv[4]);
-	result.hbar = std::complex<double> {Rehbar,Imhbar};
-	result.hbar_textual = format_complex_strings(argv[3], argv[4]);
-	result.samples = parse_int(argv[5]);
-	result.filepath = argv[2];
-	result.valid = validate_q_and_samples(Rehbar, result.samples);
-	return result;
+	hbar = std::complex<double> {Rehbar,Imhbar};
+	hbar_textual = format_complex_strings(argv[3], argv[4]);
+	samples = parse_int(argv[5]);
+	filepath = argv[2];
+	valid = is_valid_q_S(Rehbar, samples);
 }
 // =============================================================================================
-std::string format_complex_strings(const char* re, const char* im)
-/*
- * Returns a string concatenating the textual representations
+/**
+ * @brief Returns a string concatenating the textual representations
  * of the real and imaginary parts of a complex number.
- *
  * For example, the arguments ("42", "-0.69") output std::string("42-0.69i")
- *
  */
+std::string format_complex_strings(const char* re, const char* im)
 {
 	std::ostringstream formatter;
 	bool imag_nonnegative = (parse_double(im) >= 0);
@@ -61,10 +70,10 @@ std::string format_complex_strings(const char* re, const char* im)
 	return formatter.str();
 }
 // =============================================================================================
+/**
+ * @brief A simple wrapper around std:stod
+ */
 double parse_double(const char* input) noexcept
-/*
-	A simple wrapper around std:stod.
-*/
 {
 	try
 	{
@@ -83,10 +92,10 @@ double parse_double(const char* input) noexcept
 	}
 }
 // =============================================================================================
+/**
+ * @brief A simple wrapper around std::stoi
+ */
 int parse_int(const char* input) noexcept
-/*
-	A simple wrapper around std::stoi.
-*/
 {
 	try
 	{
@@ -105,11 +114,13 @@ int parse_int(const char* input) noexcept
 	}
 }
 //==============================================================================================
-bool validate_q_and_samples(double Rehbar, int samples)
-/*
-	Checks if the values of hbar and samples have been specified correctly.
-	Returns true on valid data, false on invalid data.
-*/
+/**
+ * @brief validate_q_and_samples checks if hbar and samples are correctly specified
+ * @param Rehbar - real part of the parameter hbar
+ * @param samples - number of samples per dimension of the integration domain
+ * @return true on valid data, false on invalid data
+ */
+bool is_valid_q_S(double Rehbar, int samples)
 {
 	if (samples < 1)
 	{
@@ -125,10 +136,10 @@ bool validate_q_and_samples(double Rehbar, int samples)
 	return true;
 }
 // =============================================================================================
+/**
+ * @brief Returns the smallest integer greater than |n| and divisible by d
+ */
 int make_divisible(int n, int d)
-/*
-	Returns the smallest integer greater than |n| and divisible by d
-*/
 {
 	if (n<0)
 		n = -n;
@@ -141,7 +152,11 @@ int make_divisible(int n, int d)
 	return (n/d + 1)*d;
 }
 // =============================================================================================
-void cmdline_data::fill(Json::Value& json)
+/**
+ * @brief args::fill writes the fields of the `args` struct into a Json value
+ * @param json - a Json::Value object
+ */
+void args::fill(Json::Value& json)
 {
 	json["hbar"] = hbar_textual; // Re(hbar), Im(hbar)
 	json["triangulation JSON"] = filepath;

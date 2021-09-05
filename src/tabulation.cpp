@@ -3,17 +3,23 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
+#include <iostream>
+#include <complex>
+
 #include "tabulation.h"
 
-/*
-    Implementation of member functions of class 'tabulation'.
+/**
+ * @file
+ * Implementation of member functions of class 'tabulation'
 */
 // ================================================================================================
+/**
+ * @brief
+ * Constructs the object and immediately launches the tabulation
+*/
 tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples):
 	length {samples}, ready {false}, iteration {nullptr}
-/*
-	Constructs the object and immediately launches the tabulation.
-*/
 {
 	if (length < 1)
 		return;
@@ -21,21 +27,23 @@ tabulation::tabulation(double initial_a, std::complex<double> hbar, int samples)
 	step = twopi / static_cast<double>(length);
 	buffer.reserve(length);
 	q = std::exp(hbar);
-	startangle = initial_a * pi;
+	startangle = initial_a * π;
 	radius = std::exp(hbar * initial_a);
 	bool is_real = (hbar.imag() == 0);
 	// Everything is set up, so we can start the precomputation thread:
 	iteration = std::make_unique<std::thread>(thread_main, this, is_real);
 }
 // ------------------------------------------------------------------------------------------------
-void tabulation::thread_main(tabulation* obj, bool real_q)
-/*
-	This is a static member function serving as the thread main
-	for the tabulation thread.
-	The argument real_q informs us whether the parameter hbar is real.
-	Note that when hbar is real, then q and "radius" are also real,
-	and this speeds up computations.
+/**
+ * @brief
+ * A static member function serving as the thread main for the tabulation thread.
+ * @param
+ * real_q - informs us whether the parameter hbar is real.
+ * @remark
+ * Note that when hbar is real, then q and "radius" are also real,
+ * and this speeds up computations.
 */
+void tabulation::thread_main(tabulation* obj, bool real_q)
 {
 	double alpha = obj->startangle;
 	double step = obj->step;
@@ -70,12 +78,13 @@ void tabulation::thread_main(tabulation* obj, bool real_q)
 	}
 }
 // ------------------------------------------------------------------------------------------------
-std::complex<double> tabulation::get(int position) const
-/*
-	Retrieves the precomputed value at the given position.
-	There's a simple bounds check, so 'position' is essentially
-	reduced mod 'length' to yield a valid index.
+/**
+ * @brief
+ * Retrieves the precomputed value at the given position.
+ * There's a simple bounds check, so 'position' is essentially
+ * reduced mod 'length' to yield a valid index.
 */
+std::complex<double> tabulation::get(int position) const
 { 
 	while (position > length)
 		position -= length;
@@ -84,11 +93,12 @@ std::complex<double> tabulation::get(int position) const
 	return buffer[position];
 }
 // ------------------------------------------------------------------------------------------------
-void tabulation::finish()
-/*
-	Waits for the precomputation thread to join before
-	returning control to the parent thread.
+/**
+ * @brief
+ * Waits for the precomputation thread to join before
+ * returning control to the parent thread.
 */
+void tabulation::finish()
 {
 	if (ready)
 		return;

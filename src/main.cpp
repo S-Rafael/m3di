@@ -34,15 +34,18 @@
 //=======================================================================================
 int main(int argc, const char** argv)
 {
-	program_mode mode = decide_mode(argc, argv);
+	auto mode = decide_mode(argc, argv);
 	switch (mode)
 	{
 		case program_mode::integrate:
 			return integrate_mode(argv);
+
 		case program_mode::help:
 			return display_help(argc, argv);
+
 		case program_mode::write:
 			return write_mode(argv);
+
 		case program_mode::usage:
 		default:
 			return display_usage(argc, argv);

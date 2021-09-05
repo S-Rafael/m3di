@@ -3,19 +3,25 @@
  *   All rights reserved.
  *   License information at the end of the file.
  */
+
 #include "stats.h"
 
 //==============================================================================================
+/**
+ * @brief stats::stats - class constructor; records the start time
+ */
 stats::stats() : num_threads {1}
-// Class constructor records the start time
 {
     using namespace std::chrono;
     start = steady_clock::now(); // store construction time
     tabulation = integration = begin = start;
 }
 //==============================================================================================
+/**
+ * @brief Receives and processes a signal informing about the next stage of program execution
+ * @param s - the signal
+ */
 void stats::signal(stats::messages s)
-// Receives and processes a signal informing about the next stage of program execution
 {
     using namespace std::chrono;
     switch (s)
@@ -31,8 +37,11 @@ void stats::signal(stats::messages s)
     }
 }
 //==============================================================================================
+/**
+ * @brief Fills the JSON structure with the statistics information
+ * @param v - the JSON structure to be filled
+ */
 void stats::fill(Json::Value& v)
-// Fills the Json::Value v passed by reference with the statistics information
 {
     using namespace Json;
     Value th = num_threads;
