@@ -35,7 +35,7 @@ CC G_q(q_t q, CC z) noexcept
 {
 	if (is_subnormal(z))
 		return INFTY; // at z=0, G_q(z) has an essential singularity.
-	const CC one {1.0};
+	static const CC one {1.0};
 	CC numerator   = one; // initial value 1
 	CC denominator = one - z;  // initial value 1-z
 	// at first, we take the terms q^n / z, q^n * z with n=1,
@@ -62,7 +62,7 @@ template<typename q_t>
 CC c(q_t q) noexcept
 // Returns c_q for |q| < 1.
 {
-	const CC one {1.0};
+	static const CC one {1.0};
 	CC numerator   = one;
 	CC denominator = one;
 	CC q_to_n      = q;
