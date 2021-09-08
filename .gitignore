@@ -1,6 +1,5 @@
 *.directory
 *.o
-m3di
 qt*
 Makefile
 build.ninja
@@ -10,5 +9,10 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 install_manifest.txt
-build/*
+build/m3di
+build/CMakeFiles/
+build/CMakeCache.txt
+build/cmake_install.cmake
+
+
 
