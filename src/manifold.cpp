@@ -207,7 +207,6 @@ mani_data::mani_data(const char* filepath)
 		// Allocate the vector for shared_ptr's to tabulations of factors:
 		G_q_tables.resize(num_quads);
 	}
-
 	else std::cerr << "Could not load triangulation info." << std::endl;
 }
 // =============================================================================================
@@ -216,12 +215,11 @@ mani_data::mani_data(const char* filepath)
  * Tabulates the values of the individual G_q(...) factors of the integrand.
  */
 void mani_data::tabulate(std::complex<double> hbar, int samples)
-
 {
 	if (!valid_state)
 		return;
 	//Compute the constant prefactor [c(q)]^N
-	prefactor = std::pow(c(exp(hbar)), N);
+	prefactor = std::pow(c(std::exp(hbar)), N);
 	for (int quad=0; quad < num_quads; quad++)
 	{
 		// Launch tabulation for each G_q factor
