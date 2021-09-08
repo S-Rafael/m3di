@@ -1,72 +1,83 @@
-# About `m3di` v1.0
+# About m3di
 
 `m3di` is a simple command line program for numerically evaluating 
 a mathematical quantity known as the *meromorphic 3D-index*, a topological 
 invariant of 3-dimensional manifolds with torus boundary. The mathematical 
-definition of the meromorphic 3D-index as a "state integral" associated to
-3-dimensional triangulations with angles appears in
+definition of the meromorphic 3D-index as a “state integral” associated to
+ideal triangulations appears in
 [this paper](https://link.springer.com/article/10.1007/s40687-018-0166-9) 
-by Garoufalidis-Kashaev. 
+by S. Garoufalidis and R. Kashaev. 
 Subsequently, `m3di` was used to produce the numerical results of
 [this paper](http://arxiv.org/).
 
-## Software and hardware requirements
+Generally, `m3di` is meant for machines/clusters running Linux or
+similar UNIX-based systems. Smaller computations, up to 3 tetrahedra,
+can be run on ordinary PCs and usually finish within seconds.
+It ought to be possible to compile `m3di` on Windows or MacOS, although
+this has not been tested.
 
-Generally `m3di` is meant to run on compute servers running Linux or similar
-UNIX-based systems. Smaller computations can be performed on ordinary PCs.
+## Build requirements
 
-In order to compile and install `m3di` you will need:
+In order to build and install `m3di` you will need:
 
-* The GNU toolchain, including GNU make and the GNU C++ compiler (`g++`) 
-  version 6.1 or later;
-* The [jsoncpp](https://github.com/open-source-parsers/jsoncpp) library
-  with header files visible to the compiler;
-* If the system you intend to run `m3di` on doesn't have `jsoncpp`, you may have
-  to link it statically.
-
-Currently, the project relies on a simple Makefile which may require certain 
-adjustments in case it doesn't work on your system. 
+*  A C++ compiler supporting the 2014 standard (C++14);
+*  CMake, which comes preinstalled on many systems. If you don't have it, 
+   use your distribution's package manager to install it or [download it from here](https://cmake.org/);
+*  The `jsoncpp` library, which is available [from here](https://github.com/open-source-parsers/jsoncpp).
 
 ## Building and installing `m3di`
 
-Building `m3di` should be straightforward on most Linux distributions:
+1. We are assuming that you have cloned this repository and navigated to it:
+   ```
+   git clone https://github.com/S-Rafael/m3di
+   cd m3di
+   ```
 
-1. Navigate to the source directory `src`:
+2. Run `CMake` in the repository's directory:
+   ```
+   cmake .
+   ```
+   At this stage, you may pass additional options to `cmake` if you wish.
+   For the purposes of this instruction, we assume that you used the default
+   Unix Makefiles generator.
 
-   `$ cd /path/to/the/directory/src`
-2. Build the project:
+3. If the previous command ran without issues, build `m3di` by running
+   ```
+   make
+   ```
 
-   `$ make`
-3. If `make` finished without errors, install `m3di` as root:
+4. If the above finishes without errors and your system has `sudo`,
+   you may then install `m3di` in the usual way:
+   ```
+   sudo make install
+   ```
 
-   `# make install`
-
-   On systems with `sudo` available, you may instead use
-   
-   `$ sudo make install`
-4. If you don't have superuser rights and wish to perform a local 
-   install, you can replace step 3 with simply copying the binary
-   `m3di` to any local directory in your `$PATH`.
+5. In case you don't have superuser rights and wish to perform a local 
+   install, you can replace step 4 with simply copying the binary
+   `build/m3di` to a local directory in your `$PATH`. On many systems,
+   this will be `~/.local/bin` by default.
 
 ## Using `m3di`
 
 To compute a state integral with `m3di`, you need two pieces of data:
 
 * A [JSON data](https://www.json.org/) file describing the triangulation. Example files are shipped
-  in the `census` subdirectory.
+  in the `census/` subdirectory.
 
 * Command line parameters controlling the parameter `"hbar"` and the number of
   sample points in each coordinate direction of the integration domain.
 
 Given a valid JSON data file `'example.json'`, a command of the form
-
-`m3di integrate example.json <Re_hbar> <Im_hbar> <samples>`
+```
+m3di integrate example.json <Re_hbar> <Im_hbar> <samples>
+```
 
 will perform numerical integration and print its result as JSON data to stdout.
 Note that the real part `Re_hbar` of the complex parameter "hbar" must be negative.
 For example, for hbar = -0.1+0i and 10000 samples per dimension, the command will be
-
-`m3di integrate example.json -0.1 0 10000`
+```
+m3di integrate example.json -0.1 0 10000
+```
 
 Use the stream redirection operator (`>`) if you wish to save the output to a JSON file.
 If a single dash (`-`) is used instead of the input file name, then `m3di` reads 
@@ -86,7 +97,7 @@ will store the data needed to plot the integrand as `data.json`.
 ## Format of the JSON data files
 
 This section describes the content of the input and output [JSON data](https://www.json.org/) files.
-You may also look at example files shipped with the program (in the `'census'` subdirectory).
+You may also look at example files shipped in the `census/` subdirectory.
 
 ### Input files
 
@@ -98,7 +109,7 @@ The required data fields at top level are:
 | Key | Value type | Meaning |
 | --- | ---------- | ------- |
 | `"N"` | Number | The number of tetrahedra in the triangulation; must be ≥2. |
-| `"a"` | Array  | the "initial" strict angle structure. Must be an array of length 3N whose entries are of type `Number` and represent angles in units of π on the normal quadrilaterals of the triangulation. Hence, for example, an angle of π/3 could be encoded as '0.333333333'. The program does not verify whether the given vector satisfies the angle structure equations. |
+| `"a"` | Array  | the "initial" strict angle structure. Must be an array of length 3N whose entries are of type `Number` and represent angles in units of π on the normal quadrilaterals of the triangulation. Hence, for example, an angle of π/4 could be encoded as `0.25`. The program does not verify whether the given vector satisfies the angle structure equations. |
 | `"L"` | Array | The matrix of leading-trailing deformations corresponding to the edges and a pair of peripheral curves on the triangulation. |
 
 The matrix `"L"` is encoded as an `Array` of matrix rows. 
@@ -117,7 +128,7 @@ its elements should be an `Array` of length 3N and elements of type `Number`.
 ### Output format in _integrate mode_
 
 When run in the _integrate mode_, `m3di` prints to standard output
-a valid JSON string containing three top-level objects: `input`, `output` and `statistics`.
+a JSON packet containing three top-level objects: `input`, `output` and `statistics`.
 
 #### The `input` object
 
@@ -141,8 +152,11 @@ The object `output` contains the result of the integration, i.e., the state inte
 | `"real"`  | Number | The real part of the state integral. |
 | `"imag"`  | Number | The imaginary part of the state integral. |
 
-Additionally, the `statistics` object contains some information about the computation process.
-It is provided AS-IS and no guarantees about its contents are made in this version of `m3di`.
+#### The `statistics` object
+
+The `statistics` object contains some information about the computation process,
+including the computation time (wall-time) and the number of integration threads that ran in parallel.
+The `statistics` object is provided AS-IS and no guarantees about its contents are made in this version of `m3di`.
 
 ### Output format in _write mode_
 
@@ -161,7 +175,7 @@ Each entry of the array `"points"` is an `Object` containing the following data:
 
 ## Authorship and license information
 
-The program `m3di` was developed by [Rafael M. Siejakowski](https://rs-math.net) 
+The program `m3di` was developed by [Rafał M. Siejakowski](https://rs-math.net) 
 and then released under the GNU GPL v2 license.
 
 This program is free software; you can redistribute it and/or
