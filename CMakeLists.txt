@@ -17,7 +17,7 @@ if (NOT BUILD_DIRECTORY)
 endif()
 
 add_subdirectory(src ${BUILD_DIRECTORY})
-install(FILES ${BUILD_DIRECTORY}/m3di TYPE BIN)
+install(TARGETS m3di RUNTIME)
 
 #------------------------------------------------------------------------------
 #
