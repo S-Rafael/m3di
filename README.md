@@ -175,13 +175,25 @@ Each entry of the array `"points"` is an `Object` containing the following data:
 
 ## Authorship and license information
 
-The program `m3di` was developed by [Rafał M. Siejakowski](https://rs-math.net) 
-and then released under the GNU GPL v2 license.
+The program `m3di` was developed by [Rafał M. Siejakowski](https://rs-math.net).
+
+During the work on this project, R. Siejakowski was supported by grant #2018/12483-0
+from the São Paulo Research Foundation (FAPESP).
+All opinions, assumptions and conclusions or recommendations expressed in this
+material are the responsibility of the author and do not necessarily reflect the
+point of view of the FAPESP.
+
+### Copyright notice
+
+The program `m3di` is released under the GNU GPL v2 license.
+```
+© Copyright by Rafał M. Siejakowski, 2018-2021
+All rights reserved.
+```
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License 
-version 2 as published by the Free Software Foundation; 
-later versions of the GNU General Public Licence do NOT apply.
+version 2 as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
