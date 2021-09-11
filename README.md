@@ -99,9 +99,9 @@ JSON data from the standard input instead.
 does not compute the state integral, but rather prints the values of the
 integrand at the sample points. This is useful if you want to plot the integrand.
 For example,
-
-`m3di write example.json -0.1 0 10000 > data.json`
-
+```
+m3di write example.json -0.1 0 10000 > data.json
+```
 will store the data needed to plot the integrand as `data.json`.
 
 ## Format of the JSON data files
