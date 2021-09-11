@@ -7,8 +7,8 @@ definition of the meromorphic 3D-index as a “state integral” associated to
 ideal triangulations appears in
 [this paper](https://link.springer.com/article/10.1007/s40687-018-0166-9) 
 by S. Garoufalidis and R. Kashaev. 
-Subsequently, `m3di` was used to produce the numerical results of
-[this paper](http://arxiv.org/).
+<!--Subsequently, `m3di` was used to produce the numerical results of
+[this paper](http://arxiv.org/).-->
 
 Generally, `m3di` is meant for machines/clusters running Linux or
 similar UNIX-based systems. Smaller computations, up to 3 tetrahedra,
@@ -33,39 +33,49 @@ In order to build and install `m3di` you will need:
    cd m3di
    ```
 
-2. Run `CMake` in the repository's directory:
+2. If you have root access and wish to perform a system-wide install, run
    ```
    cmake .
    ```
-   At this stage, you may pass additional options to `cmake` if you wish.
-   For the purposes of this instruction, we assume that you used the default
-   Unix Makefiles generator.
+   (Of course, you may pass additional options to `cmake` if you wish.)
+
+   If you don't have superuser rights and wish to perform a local 
+   install into `~/.local/`, you can specify this custom install prefix by running
+   ```
+   cmake -DCMAKE_INSTALL_PREFIX=${HOME}/.local .
+   ```
+   instead.
 
 3. If the previous command ran without issues, build `m3di` by running
    ```
    make
    ```
 
-4. If the above finishes without errors and your system has `sudo`,
-   you may then install `m3di` in the usual way:
+4. If your system has `sudo`, you may perform a system-wide installation by
+   running:
    ```
    sudo make install
    ```
-
-5. In case you don't have superuser rights and wish to perform a local 
-   install, you can replace step 4 with simply copying the binary
-   `build/m3di` to a local directory in your `$PATH`. On many systems,
-   this will be `~/.local/bin` by default.
+   If you don't have root access but you've set up a custom install prefix in
+   Step 2, run
+   ```
+   make install
+   ```
+   as a regular user.
 
 ## Using `m3di`
 
 To compute a state integral with `m3di`, you need two pieces of data:
 
-* A [JSON data](https://www.json.org/) file describing the triangulation. Example files are shipped
-  in the `census/` subdirectory.
+* A [JSON data](https://www.json.org/) file describing the triangulation.
+  Example files are shipped in the `census/` subdirectory.
 
 * Command line parameters controlling the parameter `"hbar"` and the number of
   sample points in each coordinate direction of the integration domain.
+
+The mathematical meaning of this information is described in Section 10 of [the
+paper](http://arxiv.org/), which includes a description of an example
+computation.
 
 Given a valid JSON data file `'example.json'`, a command of the form
 ```
@@ -96,7 +106,8 @@ will store the data needed to plot the integrand as `data.json`.
 
 ## Format of the JSON data files
 
-This section describes the content of the input and output [JSON data](https://www.json.org/) files.
+This section describes the content of the input and output
+[JSON data](https://www.json.org/) files.
 You may also look at example files shipped in the `census/` subdirectory.
 
 ### Input files
@@ -155,17 +166,18 @@ The object `output` contains the result of the integration, i.e., the state inte
 #### The `statistics` object
 
 The `statistics` object contains some information about the computation process,
-including the computation time (wall-time) and the number of integration threads that ran in parallel.
-The `statistics` object is provided AS-IS and no guarantees about its contents are made in this version of `m3di`.
+including the computation time (wall-time) and the number of integration threads
+that ran in parallel.  The `statistics` object is provided AS-IS and no
+guarantees about its contents are made in this version of `m3di`.
 
 ### Output format in _write mode_
 
-In _write mode_, the output JSON still contains the `input` object
-whose values have the same type and meaning as in _integrate mode_.
-Unlike in _integrate mode_, the top-level object named `"output"`
-contains only a single key `"points"` of type `Array` with length equal to
-the value of `input.samples` raised to the power N-1, where N comes from the triangulation JSON file.
-Each entry of the array `"points"` is an `Object` containing the following data:
+In _write mode_, the output JSON still contains the `input` object whose values
+have the same type and meaning as in _integrate mode_.  Unlike in _integrate
+mode_, the top-level object named `"output"` contains only a single key
+`"points"` of type `Array` with length equal to the value of `input.samples`
+raised to the power N-1, where N comes from the triangulation JSON file.  Each
+entry of the array `"points"` is an `Object` containing the following data:
 
 | Key | Value type | Meaning |
 | --- | ---------- | ------- |
