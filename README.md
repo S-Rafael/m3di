@@ -1,6 +1,6 @@
 # About m3di
 
-`m3di` is a simple command line program for numerically evaluating 
+**m3di** is a simple command line program for numerically evaluating 
 a mathematical quantity known as the *meromorphic 3D-index*, a topological 
 invariant of 3-dimensional manifolds with torus boundary. The mathematical 
 definition of the meromorphic 3D-index as a “state integral” associated to
@@ -10,22 +10,22 @@ by S. Garoufalidis and R. Kashaev.
 <!--Subsequently, `m3di` was used to produce the numerical results of
 [this paper](http://arxiv.org/).-->
 
-Generally, `m3di` is meant for machines/clusters running Linux or
+Generally, **m3di** is meant for machines/clusters running Linux or
 similar UNIX-based systems. Smaller computations, up to 3 tetrahedra,
 can be run on ordinary PCs and usually finish within seconds.
-It ought to be possible to compile `m3di` on Windows or MacOS, although
+It ought to be possible to compile **m3di** on Windows or MacOS, although
 this has not been tested.
 
 ## Build requirements
 
-In order to build and install `m3di` you will need:
+In order to build and install **m3di** you will need:
 
 *  A C++ compiler supporting the 2014 standard (C++14);
-*  CMake, which comes preinstalled on many systems. If you don't have it, 
+*  **CMake**, which comes preinstalled on many systems. If you don't have it, 
    use your distribution's package manager to install it or [download it from here](https://cmake.org/);
-*  The `jsoncpp` library, which is available [from here](https://github.com/open-source-parsers/jsoncpp).
+*  The **jsoncpp** library, which is available [from here](https://github.com/open-source-parsers/jsoncpp).
 
-## Building and installing `m3di`
+## Building and installing m3di
 
 1. We are assuming that you have cloned this repository and navigated to it:
    ```
@@ -46,7 +46,7 @@ In order to build and install `m3di` you will need:
    ```
    instead.
 
-3. If the previous command ran without issues, build `m3di` by running
+3. If the previous command ran without issues, build m3di by running
    ```
    make
    ```
@@ -63,9 +63,9 @@ In order to build and install `m3di` you will need:
    ```
    as a regular user.
 
-## Using `m3di`
+## Using m3di
 
-To compute a state integral with `m3di`, you need two pieces of data:
+To compute a state integral with **m3di**, you need two pieces of data:
 
 * A [JSON data](https://www.json.org/) file describing the triangulation.
   Example files are shipped in the `census/` subdirectory.
@@ -95,7 +95,7 @@ JSON data from the standard input instead.
 
 ### Write mode
 
-`m3di` has an alternate mode called _write mode_. In this mode, the program
+**m3di** has an alternate mode called _write mode_. In this mode, the program
 does not compute the state integral, but rather prints the values of the
 integrand at the sample points. This is useful if you want to plot the integrand.
 For example,
@@ -187,7 +187,7 @@ entry of the array `"points"` is an `Object` containing the following data:
 
 ## Authorship and license information
 
-The program `m3di` was developed by [Rafał M. Siejakowski](https://rs-math.net).
+The program **m3di** was developed by [Rafał M. Siejakowski](https://rs-math.net).
 
 During the work on this project, R. Siejakowski was supported by grant #2018/12483-0
 from the São Paulo Research Foundation (FAPESP).
@@ -197,7 +197,7 @@ point of view of the FAPESP.
 
 ### Copyright notice
 
-The program `m3di` is released under the GNU GPL v2 license.
+The program **m3di** is released under the GNU GPL v2 license.
 ```
 © Copyright by Rafał M. Siejakowski, 2018-2021
 All rights reserved.
