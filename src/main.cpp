@@ -6,7 +6,7 @@
  * ------------------------------------------------------------------------------
  *
  *   For an explanation of what the meromorphic 3D-index is, see the
- *   paper https://arxiv.org/
+ *   paper https://arxiv.org/abs/2109.05355
  *
  * ------------------------------------------------------------------------------
  *

@@ -7,8 +7,8 @@ definition of the meromorphic 3D-index as a “state integral” associated to
 ideal triangulations appears in
 [this paper](https://link.springer.com/article/10.1007/s40687-018-0166-9) 
 by S. Garoufalidis and R. Kashaev. 
-<!--Subsequently, `m3di` was used to produce the numerical results of
-[this paper](http://arxiv.org/).-->
+Subsequently, **m3di** was used to produce the numerical results of
+[this paper](https://arxiv.org/abs/2109.05355).
 
 Generally, **m3di** is meant for machines/clusters running Linux or
 similar UNIX-based systems. Smaller computations, up to 3 tetrahedra,
@@ -73,9 +73,9 @@ To compute a state integral with **m3di**, you need two pieces of data:
 * Command line parameters controlling the parameter `"hbar"` and the number of
   sample points in each coordinate direction of the integration domain.
 
-<!--The mathematical meaning of this information is described in Section 10 of [the
-paper](http://arxiv.org/), which includes a description of an example
-computation.-->
+The mathematical meaning of this information is explained in [the
+accompanying paper](https://arxiv.org/abs/2109.05355).
+Section 10 of the paper also describes an example computation.
 
 Given a valid JSON data file `example.json`, a command of the form
 ```
