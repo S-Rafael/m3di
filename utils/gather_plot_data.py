@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# (C) Copyright 2018-2019 by Rafael M. Siejakowski
+# (C) Copyright 2018-2021 by Rafael M. Siejakowski
 # All rights reserved.
 #
 # License information at the end of the file. 
@@ -142,10 +142,12 @@ def main(argc, argv):
         write_data(plot_data, output_file)
 #end
 
-main(len(sys.argv), sys.argv)
+if __name__ == '__main__':
+    main(len(sys.argv), sys.argv)
+
 ###############################################################################
 #
-# Copyright (C) 2018-2019 Rafael M. Siejakowski
+# Copyright (C) 2018-2021 Rafael M. Siejakowski
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License 
