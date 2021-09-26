@@ -1,18 +1,3 @@
-*.directory
-*.o
-qt*
-Makefile
-build.ninja
-.ninja_deps
-.ninja_log
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-install_manifest.txt
-build/m3di
-build/CMakeFiles/
-build/CMakeCache.txt
-build/cmake_install.cmake
-
-
+.directory
+build/
 
